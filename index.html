@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
 <title>Réserver mon atelier offert · Terrah</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -96,15 +97,84 @@ input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(1,57,56,.12)}
 .busy .spin{display:inline-block}
 @keyframes r{to{transform:rotate(360deg)}}
 .empty{color:var(--muted);font-size:14px;padding:14px 0}
+.section-t{color:var(--teal);font-weight:700;font-size:16px;margin:0 0 12px}
+.resa{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;background:var(--white)}
+.resa b{color:var(--teal);display:block;text-transform:capitalize}
+.resa .meta{font-size:13px;color:var(--muted)}
+.resa .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn.sm{width:auto;padding:8px 16px;font-size:14px}
+.btn.danger{background:var(--white);color:var(--orange);border-color:var(--orange)}
+.btn.danger:hover:not([disabled]){background:var(--blush)}
+.confirm{background:var(--blush);border-radius:10px;padding:12px 14px;margin-top:10px;color:var(--teal);font-size:14px}
+.confirm .acts{margin-top:8px}
+.sep{border:0;border-top:1px dashed var(--line);margin:22px 0}
+.note{background:var(--cream);border-radius:10px;padding:12px 14px;color:var(--teal);font-size:14px;margin-bottom:16px}
+#admin h2{color:var(--teal);font-size:18px;font-weight:700;margin:28px 0 12px;display:flex;align-items:center;gap:10px}
+#admin h2 .count{background:var(--orange);color:#fff;border-radius:999px;font-size:12px;padding:2px 9px}
+#admin h2 .count.zero{background:var(--line);color:var(--muted)}
+#admin .card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:16px}
+#admin .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:14px;font-weight:600;border:1px solid transparent;border-radius:999px;padding:9px 18px;background:var(--orange);color:#fff;cursor:pointer;white-space:nowrap}
+#admin .btn:hover:not([disabled]){background:var(--orange-dark)}
+#admin .btn[disabled]{opacity:.5;cursor:default}
+#admin .btn.ghost{background:var(--white);color:var(--teal);border-color:var(--line)}
+#admin .btn.ghost:hover:not([disabled]){background:var(--cream)}
+#admin input{font:inherit;color:var(--teal);border:1px solid var(--line);border-radius:10px;padding:11px 14px;width:100%;outline:none}
+#admin input:focus{border-color:var(--teal)}
+#admin .login{max-width:380px;margin:60px auto}
+#admin .login label{display:block;color:var(--teal);font-weight:600;margin-bottom:6px}
+#admin .err{color:var(--orange);font-weight:500;font-size:14px;min-height:1em;margin:10px 0 0}
+#admin .todo{display:grid;gap:10px}
+#admin .task{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--white);border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:10px;padding:14px 16px}
+#admin .task.done{border-left-color:var(--ok);opacity:.75}
+#admin .task b{color:var(--teal)}
+#admin .task .act{color:var(--orange);font-weight:600}
+#admin .task.done .act{color:var(--ok)}
+#admin .task small{display:block;color:var(--muted)}
+#admin .empty{color:var(--muted);font-size:14px;padding:6px 0}
+#admin .day{margin-bottom:12px}
+#admin .day-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+#admin .day-h b{color:var(--teal);text-transform:capitalize}
+#admin .pill{border-radius:999px;font-size:12px;font-weight:600;padding:3px 10px;background:var(--cream);color:var(--teal)}
+#admin .pill.full{background:var(--blush);color:var(--orange)}
+#admin table{width:100%;border-collapse:collapse;font-size:14px}
+#admin th{text-align:left;color:var(--muted);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.6px;padding:6px 8px;border-bottom:1px solid var(--line)}
+#admin td{padding:9px 8px;border-bottom:1px solid var(--line);color:var(--teal);vertical-align:top}
+#admin tr:last-child td{border-bottom:0}
+#admin td a{color:var(--teal)}
+#admin .src{font-size:12px;font-weight:600;border-radius:999px;padding:2px 8px;white-space:nowrap}
+#admin .src.site{background:var(--cream)}
+#admin .src.bon{background:var(--blush);color:var(--orange)}
+#admin .journal li{padding:6px 0;border-bottom:1px solid var(--line);font-size:14px;list-style:none}
+#admin .journal{padding:0;margin:0}
+#admin .journal time{color:var(--muted);font-size:12px;margin-right:8px}
+#admin .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#admin .muted{color:var(--muted);font-size:13px}
+#admin .tabs{display:flex;gap:6px;flex-wrap:wrap}
+#admin .tabs button{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--white);color:var(--teal);border-radius:999px;padding:6px 14px;cursor:pointer}
+#admin .tabs button[aria-pressed="true"]{background:var(--teal);color:#fff;border-color:var(--teal)}
+#admin{max-width:960px;margin:0 auto;padding:24px 16px 64px}
+#admin .card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:16px}
+#admin .btn{width:auto;font-size:14px;padding:9px 18px}
+#admin .login{max-width:380px;margin:30px auto}
+#admin .login label{display:block;color:var(--teal);font-weight:600;margin-bottom:6px}
+#admin .err{margin:10px 0 0}
+#admin .adm-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#admin .adm-top h1{font-size:24px;margin:0}
+@media (max-width:640px){#admin .hide-m{display:none}#admin td,#admin th{padding:8px 6px}}
+header.site{position:relative}
+.admin-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);font:inherit;font-size:12px;font-weight:600;color:var(--teal-75);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.admin-btn:hover{background:var(--white)}
+body.is-admin .hero,body.is-admin main.wrap,body.is-admin .topbar{display:none}
+body:not(.is-admin) #admin{display:none}
 </style>
 </head>
 <body>
 <div class="topbar">Ateliers café · 26 rue Oberkampf, Paris 11e</div>
-<header class="site"><a href="https://terrah.co"><img src="https://terrah.co/cdn/shop/files/02_Terrah_brand_formatosRGB_BR_Terrah_paris.png?width=300" alt="Terrah Paris"></a></header>
+<header class="site"><a href="https://terrah.co"><img src="https://terrah.co/cdn/shop/files/02_Terrah_brand_formatosRGB_BR_Terrah_paris.png?width=300" alt="Terrah Paris"></a><button type="button" class="admin-btn" id="adminBtn">Admin</button></header>
 <section class="hero"><div class="in">
   <span class="badge">★ Bon cadeau · Atelier café</span>
   <h1>Votre atelier offert,<br><em>à la date qui vous va</em></h1>
-  <p class="lead">Quelqu'un vous a offert un atelier chez Terrah. Choisissez votre créneau en deux minutes.</p>
+  <p class="lead">Quelqu'un vous a offert un atelier chez Terrah. Choisissez votre créneau en deux minutes, ou déplacez une réservation existante.</p>
 </div></section>
 <main class="wrap">
 
@@ -114,29 +184,34 @@ input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(1,57,56,.12)}
       <div class="field">
         <label for="order">Numéro de commande</label>
         <input id="order" inputmode="numeric" autocomplete="off" placeholder="ex. 1482" required>
-        <p class="hint">Il figure sur le bon cadeau ou le mail de confirmation Shopify (#1482).</p>
+        <p class="hint">Il figure sur le bon cadeau (#1482).</p>
       </div>
       <div class="field">
         <label for="prenom">Prénom de la personne qui vous l'a offert</label>
         <input id="prenom" autocomplete="off" placeholder="ex. Alice" required>
       </div>
-      <button class="btn" type="submit"><span class="spin"></span><span>Trouver mon bon</span></button>
+      <button class="btn" type="submit"><span class="spin"></span><span>Accéder à mon bon</span></button>
+      <p class="hint" style="text-align:center;margin-top:12px">Déjà réservé ? Mêmes infos pour déplacer ou annuler.</p>
       <p class="err" id="e1" role="alert"></p>
     </form>
   </section>
 
-  <!-- Étape 2 : atelier, places, créneau -->
+  <!-- Étape 2 : mon bon (réservations + nouvelle réservation) -->
   <section class="step card" id="s2">
     <div class="bon"><b id="bonTitre">Bon cadeau</b><span id="bonInfo"></span></div>
-    <div id="choixAtelier"></div>
-    <label>Nombre de places</label>
-    <div class="stepper">
-      <button type="button" id="moins" aria-label="Une place de moins">−</button>
-      <output id="nb">1 place</output>
-      <button type="button" id="plus" aria-label="Une place de plus">+</button>
+    <div id="mesResas"></div>
+    <div id="nouvelle">
+      <p class="section-t" id="nouvelleT">Choisir mon créneau</p>
+      <div id="choixAtelier"></div>
+      <label>Nombre de places</label>
+      <div class="stepper">
+        <button type="button" id="moins" aria-label="Une place de moins">−</button>
+        <output id="nb">1 place</output>
+        <button type="button" id="plus" aria-label="Une place de plus">+</button>
+      </div>
+      <label>Créneaux disponibles</label>
+      <div id="cal"><p class="empty">Chargement des disponibilités…</p></div>
     </div>
-    <label>Choisissez un créneau</label>
-    <div id="cal"><p class="empty">Chargement des disponibilités…</p></div>
     <p class="err" id="e2" role="alert"></p>
     <div class="row" style="margin-top:20px">
       <button type="button" class="btn ghost" data-back="s1">← Retour</button>
@@ -160,18 +235,60 @@ input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(1,57,56,.12)}
     </form>
   </section>
 
+  <!-- Étape 5 : déplacer -->
+  <section class="step card" id="s5">
+    <p class="section-t">Déplacer mon atelier</p>
+    <div class="note" id="deplInfo"></div>
+    <label>Nouvelle date</label>
+    <div id="cal2"><p class="empty">Chargement des disponibilités…</p></div>
+    <p class="err" id="e5" role="alert"></p>
+    <div class="row" style="margin-top:20px">
+      <button type="button" class="btn ghost" data-back="s2">← Retour</button>
+      <button type="button" class="btn" id="goDepl" style="width:auto" disabled><span class="spin"></span><span>Confirmer le déplacement</span></button>
+    </div>
+  </section>
+
   <!-- Étape 4 : confirmation -->
   <section class="step card" id="s4">
     <div class="done">
       <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-      <h2>C'est réservé !</h2>
+      <h2 id="doneT">C'est réservé !</h2>
       <p id="doneTxt"></p>
       <p class="hint">Terrah · 26 rue Oberkampf, 75011 Paris</p>
+      <button type="button" class="btn ghost" id="backBon" style="margin-top:14px">Revenir à mon bon</button>
     </div>
   </section>
 
   <p class="foot">Une question ? <a href="mailto:contact@terrah.co">contact@terrah.co</a></p>
 </main>
+
+<section id="admin">
+  <div class="adm-top"><h1 style="color:var(--teal)">Espace équipe · Ateliers</h1>
+    <div class="toolbar"><button class="btn ghost" id="refresh" hidden>↻ Rafraîchir</button><button class="btn ghost" id="quitAdmin">← Page client</button><button class="btn ghost" id="logout" hidden>Se déconnecter</button></div></div>
+  <div id="login" class="card login">
+    <form id="fl">
+      <label for="code">Mot de passe</label>
+      <input id="code" type="password" autocomplete="current-password" required>
+      <button class="btn" style="width:100%;margin-top:14px" type="submit">Entrer</button>
+      <p class="err" id="el"></p>
+    </form>
+  </div>
+  <div id="app" hidden>
+    <p class="muted" id="maj"></p>
+    <h2>À faire dans Easy Appointment Booking <span class="count" id="nTodo">0</span></h2>
+    <p class="muted" style="margin-top:-6px">Les réservations par bon cadeau ne sont pas visibles dans EAB : retire ces places à la main, puis clique sur « C'est fait ».</p>
+    <div class="todo" id="todo"></div>
+    <h2>Planning des ateliers</h2>
+    <div class="tabs" id="filtre">
+      <button type="button" data-f="tous" aria-pressed="true">Tous</button>
+      <button type="button" data-f="latte" aria-pressed="false">Latte art</button>
+      <button type="button" data-f="degustation" aria-pressed="false">Dégustation</button>
+    </div>
+    <div id="planning" style="margin-top:12px"></div>
+    <h2>Dernières actions des bons cadeaux</h2>
+    <div class="card"><ul class="journal" id="journal"></ul></div>
+  </div>
+</section>
 
 <script>
 (() => {
@@ -184,13 +301,15 @@ input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(1,57,56,.12)}
     pas_cadeau: "Cette commande ne contient pas de bon cadeau atelier.",
     places:     "Il ne reste pas assez de places sur ce bon.",
     complet:    "Ce créneau vient d'être complet, choisissez-en un autre.",
-    date:       "Ce créneau n'est plus réservable, choisissez-en un autre.",
+    date:       "Ce créneau n'est plus disponible, choisissez-en un autre.",
     creneau:    "Ce créneau n'existe pas, choisissez-en un autre.",
+    introuvable:"Cette réservation n'existe plus. Rechargez la page.",
+    trop_tard:  "L'atelier est dans moins de 48 h : il n'est plus modifiable en ligne. Écrivez-nous à contact@terrah.co.",
     reseau:     "Connexion impossible pour le moment. Réessayez dans un instant."
   };
   const MOIS_EN = {january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
-
-  const st = { order:"", bon:null, atelier:null, places:1, slot:null, occupation:null };
+  const KEYS = Object.keys(CONFIG.ATELIERS);
+  const st = { order:"", prenom:"", bon:null, resas:[], atelier:null, places:1, slot:null, occupation:null, depl:null, slot2:null };
 
   async function api(params){
     const r = await fetch(CONFIG.WEBHOOK, { method:"POST", body:new URLSearchParams(params) });
@@ -198,137 +317,175 @@ input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(1,57,56,.12)}
     if (!r.ok || t.trim() === "Accepted") throw new Error("reseau");
     return t;
   }
-  function show(id){ document.querySelectorAll(".step").forEach(s => s.classList.toggle("on", s.id === id)); window.scrollTo({top:0,behavior:"smooth"}); }
-  function busy(form, on){ const b = form.querySelector("button[type=submit]"); b.disabled = on; b.classList.toggle("busy", on); }
+  const show = id => { document.querySelectorAll(".step").forEach(s => s.classList.toggle("on", s.id === id)); window.scrollTo({top:0,behavior:"smooth"}); };
+  const busyBtn = (b, on) => { b.disabled = on; b.classList.toggle("busy", on); };
   const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const fromIso = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
   const dateTxt = d => d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const h = t => t.replace(":","h");
   const restant = k => st.bon[k].achetes - st.bon[k].utilises;
+  const pl = n => n + (n > 1 ? " places" : " place");
+  const minDate = () => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + CONFIG.DELAI_MIN_JOURS); return d; };
+  const modifiable = dIso => fromIso(dIso) >= minDate();
 
   document.querySelectorAll("[data-back]").forEach(b => b.onclick = () => show(b.dataset.back));
+  $("#backBon").onclick = () => refreshBon();
 
   // ---------- Étape 1
+  async function verifier(){
+    const res = JSON.parse(await api({ action:"verifier", order:st.order, prenom:st.prenom }));
+    if (res.erreur) throw new Error(res.erreur);
+    st.bon = res;
+    const g = {};
+    (res.resas.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\]/g) || []).forEach(t => {
+      const [, a, d, hh] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\]/);
+      const k = `${a}/${d}/${hh}`; g[k] = g[k] || { atelier:a, date:d, heure:hh, n:0 }; g[k].n++;
+    });
+    st.resas = Object.values(g).sort((x,y) => x.date.localeCompare(y.date));
+  }
   $("#f1").onsubmit = async e => {
     e.preventDefault();
-    const order = $("#order").value.replace(/\D/g,""), prenom = $("#prenom").value.trim();
+    st.order = $("#order").value.replace(/\D/g,""); st.prenom = $("#prenom").value.trim();
     $("#e1").textContent = "";
-    if (!order || prenom.length < 2) { $("#e1").textContent = "Renseignez le numéro de commande et le prénom."; return; }
-    busy(e.target, true);
-    try {
-      const res = JSON.parse(await api({ action:"verifier", order, prenom }));
-      if (res.erreur) { $("#e1").textContent = ERREURS[res.erreur] || ERREURS.reseau; return; }
-      const dispo = Object.keys(CONFIG.ATELIERS).filter(k => res[k] && res[k].achetes - res[k].utilises > 0);
-      if (!dispo.length) { $("#e1").textContent = "Toutes les places de ce bon ont déjà été réservées."; return; }
-      st.order = order; st.bon = res; st.atelier = dispo[0]; st.places = 1; st.slot = null;
-      $("#bonTitre").textContent = "Bon " + res.commande;
-      $("#bonInfo").textContent = "valable jusqu'au " + res.expire;
-      renderChoix(dispo);
-      show("s2");
-      loadDispos();
-    } catch(err) { $("#e1").textContent = ERREURS.reseau; }
-    finally { busy(e.target, false); }
+    if (!st.order || st.prenom.length < 2) { $("#e1").textContent = "Renseignez le numéro de commande et le prénom."; return; }
+    const b = e.target.querySelector("button[type=submit]"); busyBtn(b, true);
+    try { await verifier(); renderBon(); show("s2"); loadDispos(); }
+    catch(err) { $("#e1").textContent = ERREURS[err.message] || ERREURS.reseau; }
+    finally { busyBtn(b, false); }
   };
+  async function refreshBon(){
+    try { await verifier(); renderBon(); show("s2"); loadDispos(); }
+    catch(err) { show("s1"); $("#e1").textContent = ERREURS[err.message] || ERREURS.reseau; }
+  }
 
+  // ---------- Étape 2
+  function renderBon(){
+    $("#bonTitre").textContent = "Bon " + st.bon.commande;
+    $("#bonInfo").textContent = "valable jusqu'au " + st.bon.expire;
+    $("#e2").textContent = "";
+    // mes réservations
+    const box = $("#mesResas");
+    if (!st.resas.length) box.innerHTML = "";
+    else {
+      box.innerHTML = `<p class="section-t">Mes réservations</p>` + st.resas.map((r,i) => {
+        const a = CONFIG.ATELIERS[r.atelier], ok = modifiable(r.date);
+        return `<div class="resa" data-i="${i}"><b>${dateTxt(fromIso(r.date))}</b>
+          <span class="meta">${a ? a.nom : r.atelier} · ${h(r.heure)} · ${pl(r.n)}</span>
+          ${ok ? `<div class="acts"><button type="button" class="btn ghost sm" data-act="depl">Déplacer</button>
+                 <button type="button" class="btn danger sm" data-act="annul">Annuler</button></div>`
+               : `<p class="hint">Moins de 48 h avant l'atelier : pour tout changement, écrivez-nous.</p>`}
+          <div class="zone"></div></div>`;
+      }).join("") + `<hr class="sep">`;
+      box.querySelectorAll("[data-act]").forEach(btn => btn.onclick = () => {
+        const i = +btn.closest(".resa").dataset.i;
+        btn.dataset.act === "depl" ? ouvrirDepl(st.resas[i]) : confirmerAnnul(btn.closest(".resa"), st.resas[i]);
+      });
+    }
+    // places restantes
+    const dispo = KEYS.filter(k => st.bon[k] && restant(k) > 0);
+    if (!dispo.length) {
+      $("#nouvelle").style.display = "none"; $("#go3").style.display = "none";
+      if (!st.resas.length) $("#e2").textContent = "Toutes les places de ce bon ont déjà été utilisées.";
+      return;
+    }
+    $("#nouvelle").style.display = ""; $("#go3").style.display = "";
+    $("#nouvelleT").textContent = st.resas.length ? "Réserver mes places restantes" : "Choisir mon créneau";
+    if (!dispo.includes(st.atelier)) st.atelier = dispo[0];
+    st.places = 1; st.slot = null;
+    renderChoix(dispo);
+  }
   function renderChoix(dispo){
     const box = $("#choixAtelier");
     if (dispo.length < 2) {
       const k = dispo[0];
-      box.innerHTML = `<p style="margin:0 0 18px"><b>${CONFIG.ATELIERS[k].nom}</b><br><span class="hint">${restant(k)} place(s) offerte(s) à réserver</span></p>`;
+      box.innerHTML = `<p style="margin:0 0 18px;color:var(--teal)"><b>${CONFIG.ATELIERS[k].nom}</b><br><span class="hint">${pl(restant(k))} à réserver</span></p>`;
       return;
     }
     box.innerHTML = `<label>Atelier</label><div class="seg">${dispo.map(k =>
-      `<button type="button" data-k="${k}" aria-pressed="${k===st.atelier}">${CONFIG.ATELIERS[k].nom}<small>${restant(k)} place(s) à réserver</small></button>`).join("")}</div>`;
+      `<button type="button" data-k="${k}" aria-pressed="${k===st.atelier}">${CONFIG.ATELIERS[k].nom}<small>${pl(restant(k))} à réserver</small></button>`).join("")}</div>`;
     box.querySelectorAll("button").forEach(b => b.onclick = () => {
       st.atelier = b.dataset.k; st.places = 1; st.slot = null;
       box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
-      renderAll();
+      renderCal();
     });
   }
 
   // ---------- Disponibilités
   async function loadDispos(){
     $("#cal").innerHTML = '<p class="empty">Chargement des disponibilités…</p>';
-    $("#e2").textContent = "";
-    try {
-      st.occupation = parseOccupation(await api({ action:"dispos" }));
-      renderAll();
-    } catch(err) {
+    try { st.occupation = parseOccupation(await api({ action:"dispos" })); renderCal(); }
+    catch(err) {
       $("#cal").innerHTML = "";
       $("#e2").innerHTML = 'Impossible de charger les créneaux. <a href="#" id="retry">Réessayer</a>';
-      $("#retry").onclick = ev => { ev.preventDefault(); loadDispos(); };
+      $("#retry").onclick = ev => { ev.preventDefault(); $("#e2").textContent = ""; loadDispos(); };
     }
   }
-
-  // Lignes Easy Appointment Booking : "Titre|Saturday, November 14th 2026|14:30|2" puis "#BONS" puis "[latte/2026-11-14/14:30]..."
   function parseOccupation(txt){
     const occ = {};
-    const add = (k, d, h, n) => { const id = `${k}/${d}/${h}`; occ[id] = (occ[id] || 0) + n; };
+    const add = (k, d, hh, n) => { const id = `${k}/${d}/${hh}`; occ[id] = (occ[id] || 0) + n; };
     const [eab, bons = ""] = txt.split("#BONS");
     eab.split("\n").forEach(l => {
       const [titre, dateEn, heure, qte] = l.split("|");
       if (!titre || !dateEn) return;
-      const k = Object.keys(CONFIG.ATELIERS).find(a => titre.toLowerCase().includes(CONFIG.ATELIERS[a].cle));
+      const k = KEYS.find(a => titre.toLowerCase().includes(CONFIG.ATELIERS[a].cle));
       const m = dateEn.trim().match(/^\w+,\s+(\w+)\s+(\d+)\w*\s+(\d{4})$/);
       if (!k || !m || !(m[1].toLowerCase() in MOIS_EN)) return;
       add(k, iso(new Date(+m[3], MOIS_EN[m[1].toLowerCase()], +m[2])), (heure||"").trim(), parseInt(qte,10) || 0);
     });
     (bons.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\]/g) || []).forEach(t => {
-      const [, k, d, h] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\]/);
-      add(k, d, h, 1);
+      const [, k, d, hh] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\]/); add(k, d, hh, 1);
     });
     return occ;
   }
-
-  function sessions(){
-    const a = CONFIG.ATELIERS[st.atelier], out = [];
-    const ferme = new Set(CONFIG.FERMETURES.filter(f => !f.atelier || f.atelier === st.atelier).map(f => f.date));
-    const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + CONFIG.DELAI_MIN_JOURS);
+  function sessions(atelier, places, exclure){
+    const a = CONFIG.ATELIERS[atelier], out = [];
+    const ferme = new Set(CONFIG.FERMETURES.filter(f => !f.atelier || f.atelier === atelier).map(f => f.date));
+    const d = minDate();
     for (let i = 0; i < CONFIG.HORIZON_JOURS; i++, d.setDate(d.getDate()+1)) {
-      if (!a.jours.includes(d.getDay()) || ferme.has(iso(d))) continue;
-      const pris = st.occupation[`${st.atelier}/${iso(d)}/${a.debut}`] || 0;
-      const libres = CONFIG.CAPACITE - pris;
-      if (libres >= st.places) out.push({ date:new Date(d), libres });
+      if (!a.jours.includes(d.getDay()) || ferme.has(iso(d)) || iso(d) === exclure) continue;
+      const libres = CONFIG.CAPACITE - (st.occupation[`${atelier}/${iso(d)}/${a.debut}`] || 0);
+      if (libres >= places) out.push({ date:new Date(d), libres });
     }
     return out;
   }
-
-  function renderAll(){
-    const max = restant(st.atelier);
-    st.places = Math.min(Math.max(1, st.places), max);
-    $("#nb").textContent = st.places + (st.places > 1 ? " places" : " place");
-    $("#moins").disabled = st.places <= 1; $("#plus").disabled = st.places >= max;
-    if (!st.occupation) return;
-    const list = sessions(), a = CONFIG.ATELIERS[st.atelier];
-    if (st.slot && !list.some(s => iso(s.date) === st.slot)) st.slot = null;
-    $("#go3").disabled = !st.slot;
-    if (!list.length) { $("#cal").innerHTML = '<p class="empty">Aucun créneau disponible pour le moment. Écrivez-nous à contact@terrah.co.</p>'; return; }
+  function drawSlots(el, list, atelier, selected, onPick){
+    const a = CONFIG.ATELIERS[atelier];
+    if (!list.length) { el.innerHTML = '<p class="empty">Aucun créneau disponible pour le moment. Écrivez-nous à contact@terrah.co.</p>'; return; }
     let html = "", mois = "";
     list.forEach(s => {
       const m = s.date.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
       if (m !== mois) { html += (mois ? "</div>" : "") + `<div class="month">${m}</div><div class="slots">`; mois = m; }
       const few = s.libres <= 1;
-      html += `<button type="button" class="slot${few?" few":""}" data-d="${iso(s.date)}" aria-pressed="${iso(s.date)===st.slot}">
+      html += `<button type="button" class="slot${few?" few":""}" data-d="${iso(s.date)}" aria-pressed="${iso(s.date)===selected}">
         <b>${s.date.toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}</b>
-        <small>${a.debut.replace(":","h")} – ${a.fin.replace(":","h")}${few ? " · " + s.libres + " place" + (s.libres>1?"s":"") + " restante" + (s.libres>1?"s":"") : ""}</small></button>`;
+        <small>${h(a.debut)} – ${h(a.fin)}${few ? " · dernière place" : ""}</small></button>`;
     });
-    $("#cal").innerHTML = html + "</div>";
-    $("#cal").querySelectorAll(".slot").forEach(b => b.onclick = () => {
-      st.slot = b.dataset.d;
-      $("#cal").querySelectorAll(".slot").forEach(x => x.setAttribute("aria-pressed", x === b));
-      $("#go3").disabled = false;
+    el.innerHTML = html + "</div>";
+    el.querySelectorAll(".slot").forEach(b => b.onclick = () => {
+      el.querySelectorAll(".slot").forEach(x => x.setAttribute("aria-pressed", x === b)); onPick(b.dataset.d);
     });
   }
-  $("#moins").onclick = () => { st.places--; renderAll(); };
-  $("#plus").onclick  = () => { st.places++; renderAll(); };
+  function renderCal(){
+    if (!st.bon || !restant(st.atelier)) return;
+    const max = restant(st.atelier);
+    st.places = Math.min(Math.max(1, st.places), max);
+    $("#nb").textContent = pl(st.places);
+    $("#moins").disabled = st.places <= 1; $("#plus").disabled = st.places >= max;
+    if (!st.occupation) return;
+    const list = sessions(st.atelier, st.places);
+    if (st.slot && !list.some(s => iso(s.date) === st.slot)) st.slot = null;
+    $("#go3").disabled = !st.slot;
+    drawSlots($("#cal"), list, st.atelier, st.slot, d => { st.slot = d; $("#go3").disabled = false; });
+  }
+  $("#moins").onclick = () => { st.places--; renderCal(); };
+  $("#plus").onclick  = () => { st.places++; renderCal(); };
 
-  // ---------- Étape 3
-  const slotDate = () => { const [y,m,d] = st.slot.split("-").map(Number); return new Date(y, m-1, d); };
+  // ---------- Réserver
   $("#go3").onclick = () => {
     const a = CONFIG.ATELIERS[st.atelier];
-    $("#recap").innerHTML = `<b>${a.nom}</b><br>${dateTxt(slotDate())}, ${a.debut.replace(":","h")} – ${a.fin.replace(":","h")}<br>${st.places} place${st.places>1?"s":""} · bon #${st.order}`;
-    $("#e3").textContent = "";
-    show("s3");
+    $("#recap").innerHTML = `<b>${a.nom}</b><br>${dateTxt(fromIso(st.slot))}, ${h(a.debut)} – ${h(a.fin)}<br>${pl(st.places)} · bon #${st.order}`;
+    $("#e3").textContent = ""; show("s3");
   };
-
   $("#f3").onsubmit = async e => {
     e.preventDefault();
     const nom = $("#nom").value.trim(), email = $("#email").value.trim(), tel = $("#tel").value.trim();
@@ -336,24 +493,222 @@ input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(1,57,56,.12)}
     if (nom.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || tel.replace(/\D/g,"").length < 8) {
       $("#e3").textContent = "Vérifiez votre nom, votre e-mail et votre téléphone."; return;
     }
-    const a = CONFIG.ATELIERS[st.atelier];
-    busy(e.target, true);
+    const a = CONFIG.ATELIERS[st.atelier], b = e.target.querySelector("button[type=submit]");
+    busyBtn(b, true);
     try {
-      const res = JSON.parse(await api({
-        action:"reserver", order:st.order, prenom:$("#prenom").value.trim(),
-        atelier:st.atelier, date:st.slot, heure:a.debut, date_txt:dateTxt(slotDate()),
-        places:String(st.places), nom, email, tel
-      }));
+      const res = JSON.parse(await api({ action:"reserver", order:st.order, prenom:st.prenom, atelier:st.atelier, date:st.slot,
+        heure:a.debut, date_txt:dateTxt(fromIso(st.slot)), places:String(st.places), nom, email, tel }));
       if (res.erreur) {
         $("#e3").textContent = ERREURS[res.erreur] || ERREURS.reseau;
         if (["complet","date","creneau"].includes(res.erreur)) { st.slot = null; loadDispos(); }
         return;
       }
-      $("#doneTxt").innerHTML = `${a.nom}<br><b>${dateTxt(slotDate())} à ${a.debut.replace(":","h")}</b><br>${st.places} place${st.places>1?"s":""}. Un e-mail de confirmation part à ${email.replace(/[<>&]/g,"")}.`;
-      show("s4");
+      done("C'est réservé !", `${a.nom}<br><b>${dateTxt(fromIso(st.slot))} à ${h(a.debut)}</b><br>${pl(st.places)}. Un e-mail de confirmation part à ${email.replace(/[<>&]/g,"")}.`);
     } catch(err) { $("#e3").textContent = ERREURS.reseau; }
-    finally { busy(e.target, false); }
+    finally { busyBtn(b, false); }
   };
+  function done(titre, html){ $("#doneT").textContent = titre; $("#doneTxt").innerHTML = html; show("s4"); }
+
+  // ---------- Annuler
+  function confirmerAnnul(card, r){
+    const zone = card.querySelector(".zone");
+    zone.innerHTML = `<div class="confirm">Annuler cette réservation ? ${pl(r.n)} ${r.n > 1 ? "seront recréditées" : "sera recréditée"} sur votre bon.
+      <div class="acts"><button type="button" class="btn danger sm" data-ok>Oui, annuler</button>
+      <button type="button" class="btn ghost sm" data-no>Non</button></div></div>`;
+    zone.querySelector("[data-no]").onclick = () => zone.innerHTML = "";
+    zone.querySelector("[data-ok]").onclick = async ev => {
+      busyBtn(ev.target, true); $("#e2").textContent = "";
+      try {
+        const res = JSON.parse(await api({ action:"annuler", order:st.order, prenom:st.prenom, atelier:r.atelier, date:r.date,
+          heure:r.heure, date_txt:dateTxt(fromIso(r.date)) }));
+        if (res.erreur) { $("#e2").textContent = ERREURS[res.erreur] || ERREURS.reseau; zone.innerHTML = ""; return; }
+        done("Réservation annulée", `${CONFIG.ATELIERS[r.atelier].nom} du ${dateTxt(fromIso(r.date))}.<br>${pl(r.n)} ${r.n>1?"sont":"est"} de nouveau ${r.n>1?"disponibles":"disponible"} sur votre bon. Un e-mail de confirmation vous a été envoyé.`);
+      } catch(err) { $("#e2").textContent = ERREURS.reseau; busyBtn(ev.target, false); }
+    };
+  }
+
+  // ---------- Déplacer
+  function ouvrirDepl(r){
+    st.depl = r; st.slot2 = null;
+    const a = CONFIG.ATELIERS[r.atelier];
+    $("#deplInfo").innerHTML = `Actuellement : <b>${dateTxt(fromIso(r.date))}</b> à ${h(r.heure)}<br>${a.nom} · ${pl(r.n)}`;
+    $("#e5").textContent = ""; $("#goDepl").disabled = true;
+    show("s5");
+    if (!st.occupation) { $("#cal2").innerHTML = '<p class="empty">Chargement…</p>'; return loadDispos().then(() => ouvrirDepl(r)); }
+    drawSlots($("#cal2"), sessions(r.atelier, r.n, r.date), r.atelier, null, d => { st.slot2 = d; $("#goDepl").disabled = false; });
+  }
+  $("#goDepl").onclick = async () => {
+    const r = st.depl, b = $("#goDepl"); busyBtn(b, true); $("#e5").textContent = "";
+    try {
+      const res = JSON.parse(await api({ action:"deplacer", order:st.order, prenom:st.prenom, atelier:r.atelier, date:r.date, heure:r.heure,
+        date2:st.slot2, date_txt:dateTxt(fromIso(r.date)), date2_txt:dateTxt(fromIso(st.slot2)) }));
+      if (res.erreur) {
+        $("#e5").textContent = ERREURS[res.erreur] || ERREURS.reseau;
+        if (["complet","date"].includes(res.erreur)) { st.occupation = parseOccupation(await api({action:"dispos"})); ouvrirDepl(r); }
+        return;
+      }
+      done("Atelier déplacé", `${CONFIG.ATELIERS[r.atelier].nom}<br><b>${dateTxt(fromIso(st.slot2))} à ${h(r.heure)}</b><br>${pl(r.n)}. Un e-mail de confirmation vous a été envoyé.`);
+      st.occupation = null;
+    } catch(err) { $("#e5").textContent = ERREURS.reseau; }
+    finally { busyBtn(b, false); }
+  };
+})();
+</script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const KEYS = Object.keys(CONFIG.ATELIERS);
+  const NOMS = { latte:"Latte art", degustation:"Dégustation" };
+  const MOIS_EN = {january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const fromIso = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+  const dLong = s => fromIso(s).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const dShort = s => fromIso(s).toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"});
+  const pl = n => n + (n > 1 ? " places" : " place");
+  const st = { code:"", data:null, filtre:"tous" };
+  const store = { get(){ try { return localStorage.getItem("terrah_equipe_code") || ""; } catch(e){ return ""; } },
+                  set(v){ try { v ? localStorage.setItem("terrah_equipe_code", v) : localStorage.removeItem("terrah_equipe_code"); } catch(e){} } };
+
+  async function api(params){
+    const r = await fetch(CONFIG.WEBHOOK, { method:"POST", body:new URLSearchParams(params) });
+    const t = await r.text();
+    if (!r.ok || t.trim() === "Accepted") throw new Error("reseau");
+    if (t.trim().startsWith('{"erreur":"code"')) throw new Error("code");
+    return t;
+  }
+
+  // ---------- Parsing
+  function parse(txt){
+    const [eabTxt, rest1 = ""] = txt.split("\n#BONS\n");
+    const [bonsTxt, rest2 = ""] = rest1.split("\n#FERMES\n");
+    const [fermesTxt, journalTxt = ""] = rest2.split("\n#JOURNAL\n");
+    const sessions = {};   // clé atelier/date/heure
+    const S = (a, d, h) => { const k = `${a}/${d}/${h}`; return sessions[k] = sessions[k] || { atelier:a, date:d, heure:h, site:[], bons:{}, nSite:0, nBons:0 }; };
+    eabTxt.split("\n").forEach(l => {
+      const [cmd, titre, dateEn, heure, qte, nom, email, tel] = l.split("|");
+      if (!titre || !dateEn) return;
+      const a = KEYS.find(k => titre.toLowerCase().includes(CONFIG.ATELIERS[k].cle));
+      const m = dateEn.trim().match(/^\w+,\s+(\w+)\s+(\d+)\w*\s+(\d{4})$/);
+      if (!a || !m || !(m[1].toLowerCase() in MOIS_EN)) return;
+      const s = S(a, iso(new Date(+m[3], MOIS_EN[m[1].toLowerCase()], +m[2])), (heure||"").trim());
+      const n = parseInt(qte,10) || 0; s.nSite += n; s.site.push({ cmd, n, nom, email, tel });
+    });
+    (bonsTxt.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\/(\d+)\]/g) || []).forEach(t => {
+      const [, a, d, h, num] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\/(\d+)\]/);
+      const s = S(a, d, h); s.nBons++; s.bons[num] = (s.bons[num] || 0) + 1;
+    });
+    const fermes = {};
+    (fermesTxt.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)=(\d+)\]/g) || []).forEach(t => {
+      const [, a, d, h, n] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)=(\d+)\]/); fermes[`${a}/${d}/${h}`] = +n;
+    });
+    const contacts = {}, journal = [];
+    journalTxt.split("\n").forEach(l => {
+      const f = l.split(";"); if (!["RESA","ANNUL","REPORT"].includes(f[0])) return;
+      journal.push(f);
+      if (f[0] === "RESA") contacts[f[2].replace("#","")] = { nom:f[7], email:f[8], tel:f[9] };
+    });
+    return { sessions, fermes, contacts, journal };
+  }
+
+  // ---------- Rendu
+  function render(){
+    const { sessions, fermes, contacts, journal } = st.data;
+    const today = iso(new Date());
+    const futur = Object.values(sessions).filter(s => s.date >= today).sort((a,b) => (a.date+a.heure).localeCompare(b.date+b.heure));
+
+    // À faire EAB
+    const taches = [];
+    const keysF = new Set([...futur.filter(s => s.nBons > 0).map(s => `${s.atelier}/${s.date}/${s.heure}`),
+                           ...Object.keys(fermes).filter(k => k.split("/")[1] >= today)]);
+    keysF.forEach(k => {
+      const s = sessions[k] || (() => { const [a,d,h] = k.split("/"); return { atelier:a, date:d, heure:h, nSite:0, nBons:0 }; })();
+      const deja = fermes[k] || 0, total = s.nSite + s.nBons;
+      taches.push({ k, s, deja, total, ok: deja === s.nBons });
+    });
+    taches.sort((a,b) => (a.ok - b.ok) || a.s.date.localeCompare(b.s.date));
+    const aFaire = taches.filter(t => !t.ok).length;
+    $("#nTodo").textContent = aFaire; $("#nTodo").classList.toggle("zero", !aFaire);
+    $("#todo").innerHTML = taches.length ? taches.map(t => {
+      const a = CONFIG.ATELIERS[t.s.atelier], diff = t.s.nBons - t.deja;
+      let act;
+      if (t.ok) act = t.s.nBons ? `Fait : ${pl(t.s.nBons)} retirée${t.s.nBons>1?"s":""} dans EAB` : "Rien à faire";
+      else if (diff > 0) act = `Retirer ${pl(diff)} dans EAB` + (t.total >= CONFIG.CAPACITE ? " · session complète, fermer le créneau" : "");
+      else act = `Remettre ${pl(-diff)} en vente dans EAB (annulation d'un bon)`;
+      return `<div class="task${t.ok ? " done" : ""}"><div><b>${dLong(t.s.date)} · ${t.s.heure.replace(":","h")}</b>
+        <small>${a ? a.nom : t.s.atelier} · ${t.s.nSite} sur le site + ${t.s.nBons} par bon = ${t.total}/${CONFIG.CAPACITE}</small>
+        <span class="act">${act}</span></div>
+        ${t.ok ? (t.s.nBons ? `<button class="btn ghost" data-k="${t.k}" data-from="${t.deja}" data-to="0">Annuler « fait »</button>` : "")
+               : `<button class="btn" data-k="${t.k}" data-from="${t.deja}" data-to="${t.s.nBons}">C'est fait</button>`}</div>`;
+    }).join("") : `<p class="empty">Rien à faire : aucune réservation par bon cadeau à venir.</p>`;
+    $("#todo").querySelectorAll("[data-k]").forEach(b => b.onclick = () => marquer(b));
+
+    // Planning
+    const list = futur.filter(s => (s.nSite + s.nBons) > 0 && (st.filtre === "tous" || s.atelier === st.filtre));
+    $("#planning").innerHTML = list.length ? list.map(s => {
+      const a = CONFIG.ATELIERS[s.atelier], total = s.nSite + s.nBons;
+      const rows = [
+        ...s.site.map(r => `<tr><td><span class="src site">Site</span></td><td>${esc(r.nom)}</td><td>${r.n}</td>
+           <td>${r.tel ? `<a href="tel:${esc(r.tel)}">${esc(r.tel)}</a>` : ""}</td><td class="hide-m">${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ""}</td><td class="hide-m">${esc(r.cmd)}</td></tr>`),
+        ...Object.entries(s.bons).map(([num, n]) => { const c = contacts[num] || {};
+          return `<tr><td><span class="src bon">Bon</span></td><td>${esc(c.nom || "?")}</td><td>${n}</td>
+           <td>${c.tel ? `<a href="tel:${esc(c.tel)}">${esc(c.tel)}</a>` : ""}</td><td class="hide-m">${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ""}</td><td class="hide-m">#${esc(num)}</td></tr>`; })
+      ].join("");
+      return `<div class="card day"><div class="day-h"><b>${dLong(s.date)} · ${s.heure.replace(":","h")} · ${NOMS[s.atelier] || s.atelier}</b>
+        <span class="pill${total >= CONFIG.CAPACITE ? " full" : ""}">${total}/${CONFIG.CAPACITE}${total >= CONFIG.CAPACITE ? " · complet" : ""}</span></div>
+        <table><thead><tr><th>Source</th><th>Nom</th><th>Pl.</th><th>Téléphone</th><th class="hide-m">E-mail</th><th class="hide-m">Commande</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }).join("") : `<p class="empty">Aucune réservation à venir.</p>`;
+
+    // Journal
+    const lib = { RESA:"Réservation", ANNUL:"Annulation", REPORT:"Déplacement" };
+    $("#journal").innerHTML = journal.length ? journal.slice(-20).reverse().map(f => {
+      const a = CONFIG.ATELIERS[f[3]], at = NOMS[f[3]] || f[3];
+      let txt = `<b>${lib[f[0]]}</b> · bon ${esc(f[2])} · ${at} ${dShort(f[4])} ${f[5].replace(":","h")}`;
+      if (f[0] === "RESA") txt += ` · ${pl(+f[6])} · ${esc(f[7])}`;
+      if (f[0] === "ANNUL") txt += ` · ${pl(+f[6])} recréditée${+f[6]>1?"s":""}`;
+      if (f[0] === "REPORT") txt += ` → ${dShort(f[7])}`;
+      return `<li><time>${esc(f[1])}</time>${txt}</li>`;
+    }).join("") : `<li class="empty">Aucune action pour l'instant.</li>`;
+  }
+
+  async function marquer(btn){
+    const [a, d, h] = btn.dataset.k.split("/"), from = +btn.dataset.from, to = +btn.dataset.to;
+    btn.disabled = true; btn.textContent = "…";
+    try {
+      if (from > 0) await api({ action:"fermer", code:st.code, atelier:a, date:d, heure:h, n:String(from) }); // retire l'ancien marquage
+      if (to > 0)   await api({ action:"fermer", code:st.code, atelier:a, date:d, heure:h, n:String(to) });   // pose le nouveau
+      await charger();
+    } catch(e) { btn.disabled = false; btn.textContent = "Réessayer"; }
+  }
+
+  async function charger(){
+    const txt = await api({ action:"equipe", code:st.code });
+    st.data = parse(txt); render();
+    $("#maj").textContent = "Mis à jour à " + new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  }
+  async function entrer(code){
+    st.code = code; $("#el").textContent = "";
+    try {
+      await charger(); store.set(code);
+      $("#login").hidden = true; $("#app").hidden = false; $("#refresh").hidden = false; $("#logout").hidden = false;
+    } catch(e) {
+      $("#login").hidden = false; $("#app").hidden = true; $("#refresh").hidden = true; $("#logout").hidden = true;
+      $("#el").textContent = e.message === "code" ? "Mot de passe incorrect." : "Connexion impossible, réessaie dans un instant.";
+      if (e.message === "code") store.set("");
+    }
+  }
+
+  $("#fl").onsubmit = e => { e.preventDefault(); entrer($("#code").value.trim()); };
+  $("#refresh").onclick = async () => { $("#refresh").disabled = true; try { await charger(); } catch(e){} $("#refresh").disabled = false; };
+  $("#logout").onclick = () => { store.set(""); st.code = ""; $("#code").value = ""; $("#login").hidden = false; $("#app").hidden = true; $("#refresh").hidden = true; $("#logout").hidden = true; };
+  $("#filtre").querySelectorAll("button").forEach(b => b.onclick = () => {
+    st.filtre = b.dataset.f; $("#filtre").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); render();
+  });
+  const ouvrir = () => { document.body.classList.add("is-admin"); window.scrollTo(0,0); if (!st.data) { const saved = store.get(); if (saved) entrer(saved); else $("#code").focus(); } };
+  const fermer = () => { document.body.classList.remove("is-admin"); history.replaceState(null, "", location.pathname); };
+  $("#adminBtn").onclick = () => { history.replaceState(null, "", "#admin"); ouvrir(); };
+  $("#quitAdmin").onclick = fermer;
+  if (location.hash === "#admin") ouvrir();
 })();
 </script>
 </body>
