@@ -166,6 +166,16 @@ header.site{position:relative}
 .admin-btn:hover{background:var(--white)}
 body.is-admin .hero,body.is-admin main.wrap,body.is-admin .topbar{display:none}
 body:not(.is-admin) #admin{display:none}
+#admin .dmois{color:var(--teal);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px}
+#admin .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+#admin .dchip{font:inherit;text-align:left;border:1px solid #9cc7b0;background:#eef7f1;color:var(--teal);border-radius:10px;padding:8px 10px;cursor:pointer}
+#admin .dchip b{display:block;font-size:14px;text-transform:capitalize}
+#admin .dchip small{font-size:12px;color:#2e7d5b;font-weight:600}
+#admin .dchip.plein{background:var(--cream);border-color:var(--line)}
+#admin .dchip.plein small{color:var(--muted)}
+#admin .dchip.off{background:#f3f1ee;border-color:var(--line);color:#9aa3a3}
+#admin .dchip.off b{text-decoration:line-through}
+#admin .dchip.off small{color:var(--orange)}
 </style>
 </head>
 <body>
@@ -278,6 +288,15 @@ body:not(.is-admin) #admin{display:none}
     <h2>À faire dans Easy Appointment Booking <span class="count" id="nTodo">0</span></h2>
     <p class="muted" style="margin-top:-6px">Les réservations par bon cadeau ne sont pas visibles dans EAB : retire ces places à la main, puis clique sur « C'est fait ».</p>
     <div class="todo" id="todo"></div>
+    <h2>Dates ouvertes aux bons cadeaux</h2>
+    <p class="muted" style="margin-top:-6px">Clique sur une date pour l'ouvrir ou la fermer à la réservation par bon cadeau. Les dates fermées n'apparaissent plus côté client.</p>
+    <div class="tabs" id="fDates">
+      <button type="button" data-f="" aria-pressed="true">Les deux</button>
+      <button type="button" data-f="latte" aria-pressed="false">Latte art</button>
+      <button type="button" data-f="degustation" aria-pressed="false">Dégustation</button>
+    </div>
+    <div id="dates" style="margin-top:12px"></div>
+
     <h2>Planning des ateliers</h2>
     <div class="tabs" id="filtre">
       <button type="button" data-f="tous" aria-pressed="true">Tous</button>
@@ -423,7 +442,9 @@ body:not(.is-admin) #admin{display:none}
   function parseOccupation(txt){
     const occ = {};
     const add = (k, d, hh, n) => { const id = `${k}/${d}/${hh}`; occ[id] = (occ[id] || 0) + n; };
-    const [eab, bons = ""] = txt.split("#BONS");
+    const [eab, rest = ""] = txt.split("#BONS");
+    const [bons, fermees = ""] = rest.split("#FERMEES");
+    st.fermees = new Set((fermees.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\]/g) || []).map(t => t.slice(1, -1)));
     eab.split("\n").forEach(l => {
       const [titre, dateEn, heure, qte] = l.split("|");
       if (!titre || !dateEn) return;
@@ -442,7 +463,7 @@ body:not(.is-admin) #admin{display:none}
     const ferme = new Set(CONFIG.FERMETURES.filter(f => !f.atelier || f.atelier === atelier).map(f => f.date));
     const d = minDate();
     for (let i = 0; i < CONFIG.HORIZON_JOURS; i++, d.setDate(d.getDate()+1)) {
-      if (!a.jours.includes(d.getDay()) || ferme.has(iso(d)) || iso(d) === exclure) continue;
+      if (!a.jours.includes(d.getDay()) || ferme.has(iso(d)) || iso(d) === exclure || (st.fermees && st.fermees.has(`${atelier}/${iso(d)}`))) continue;
       const libres = CONFIG.CAPACITE - (st.occupation[`${atelier}/${iso(d)}/${a.debut}`] || 0);
       if (libres >= places) out.push({ date:new Date(d), libres });
     }
@@ -582,7 +603,9 @@ body:not(.is-admin) #admin{display:none}
   function parse(txt){
     const [eabTxt, rest1 = ""] = txt.split("\n#BONS\n");
     const [bonsTxt, rest2 = ""] = rest1.split("\n#FERMES\n");
-    const [fermesTxt, journalTxt = ""] = rest2.split("\n#JOURNAL\n");
+    const [rest3, journalTxt = ""] = rest2.split("\n#JOURNAL\n");
+    const [fermesTxt, closedTxt = ""] = rest3.split("\n#FERMEES\n");
+    const closed = new Set((closedTxt.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\]/g) || []).map(t => t.slice(1, -1)));
     const sessions = {};   // clé atelier/date/heure
     const S = (a, d, h) => { const k = `${a}/${d}/${h}`; return sessions[k] = sessions[k] || { atelier:a, date:d, heure:h, site:[], bons:{}, nSite:0, nBons:0 }; };
     eabTxt.split("\n").forEach(l => {
@@ -608,12 +631,12 @@ body:not(.is-admin) #admin{display:none}
       journal.push(f);
       if (f[0] === "RESA") contacts[f[2].replace("#","")] = { nom:f[7], email:f[8], tel:f[9] };
     });
-    return { sessions, fermes, contacts, journal };
+    return { sessions, fermes, contacts, journal, closed };
   }
 
   // ---------- Rendu
   function render(){
-    const { sessions, fermes, contacts, journal } = st.data;
+    const { sessions, fermes, contacts, journal, closed } = st.data;
     const today = iso(new Date());
     const futur = Object.values(sessions).filter(s => s.date >= today).sort((a,b) => (a.date+a.heure).localeCompare(b.date+b.heure));
 
@@ -643,6 +666,9 @@ body:not(.is-admin) #admin{display:none}
     }).join("") : `<p class="empty">Rien à faire : aucune réservation par bon cadeau à venir.</p>`;
     $("#todo").querySelectorAll("[data-k]").forEach(b => b.onclick = () => marquer(b));
 
+    // Dates ouvertes aux bons cadeaux
+    renderDates(sessions, closed);
+
     // Planning
     const list = futur.filter(s => (s.nSite + s.nBons) > 0 && (st.filtre === "tous" || s.atelier === st.filtre));
     $("#planning").innerHTML = list.length ? list.map(s => {
@@ -669,6 +695,32 @@ body:not(.is-admin) #admin{display:none}
       if (f[0] === "REPORT") txt += ` → ${dShort(f[7])}`;
       return `<li><time>${esc(f[1])}</time>${txt}</li>`;
     }).join("") : `<li class="empty">Aucune action pour l'instant.</li>`;
+  }
+
+  function renderDates(sessions, closed){
+    const out = [];
+    KEYS.forEach(k => {
+      if (st.datesAt && st.datesAt !== k) return;
+      const a = CONFIG.ATELIERS[k];
+      const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + 1);
+      let mois = "", html = "";
+      for (let i = 0; i < CONFIG.HORIZON_JOURS; i++, d.setDate(d.getDate()+1)) {
+        if (!a.jours.includes(d.getDay())) continue;
+        const di = iso(d), key = `${k}/${di}`, s = sessions[`${k}/${di}/${a.debut}`];
+        const pris = s ? s.nSite + s.nBons : 0, off = closed.has(key), plein = pris >= CONFIG.CAPACITE;
+        const m = d.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+        if (m !== mois) { html += (mois ? "</div>" : "") + `<div class="dmois">${m}</div><div class="dgrid">`; mois = m; }
+        html += `<button type="button" class="dchip${off ? " off" : ""}${plein ? " plein" : ""}" data-a="${k}" data-d="${di}" title="${off ? "Fermée aux bons : cliquer pour ouvrir" : "Ouverte aux bons : cliquer pour fermer"}">
+          <b>${d.toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}</b><small>${off ? "Fermée" : plein ? "Complet " + pris + "/" + CONFIG.CAPACITE : "Ouverte · " + pris + "/" + CONFIG.CAPACITE}</small></button>`;
+      }
+      out.push(`<div class="card day"><div class="day-h"><b>${a.nom} · ${a.debut.replace(":","h")}</b></div>${html}</div></div>`);
+    });
+    $("#dates").innerHTML = out.join("");
+    $("#dates").querySelectorAll(".dchip").forEach(b => b.onclick = async () => {
+      b.disabled = true; b.querySelector("small").textContent = "…";
+      try { await api({ action:"dates", code:st.code, atelier:b.dataset.a, date:b.dataset.d }); await charger(); }
+      catch(e) { b.disabled = false; b.querySelector("small").textContent = "Erreur, réessaie"; }
+    });
   }
 
   async function marquer(btn){
@@ -701,6 +753,9 @@ body:not(.is-admin) #admin{display:none}
   $("#fl").onsubmit = e => { e.preventDefault(); entrer($("#code").value.trim()); };
   $("#refresh").onclick = async () => { $("#refresh").disabled = true; try { await charger(); } catch(e){} $("#refresh").disabled = false; };
   $("#logout").onclick = () => { store.set(""); st.code = ""; $("#code").value = ""; $("#login").hidden = false; $("#app").hidden = true; $("#refresh").hidden = true; $("#logout").hidden = true; };
+  $("#fDates").querySelectorAll("button").forEach(b => b.onclick = () => {
+    st.datesAt = b.dataset.f; $("#fDates").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); if (st.data) render();
+  });
   $("#filtre").querySelectorAll("button").forEach(b => b.onclick = () => {
     st.filtre = b.dataset.f; $("#filtre").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); render();
   });
