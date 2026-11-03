@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Réserver mon atelier offert · Terrah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://terrah.co/cdn/shop/files/02_Terrah_brand_formatosRGB_BR_Terrah_paris.png?width=64">
+<style>
+/* ============================================================
+   RÉGLAGES — à modifier ici uniquement
+   ============================================================ */
+</style>
+<script>
+const CONFIG = {
+  WEBHOOK: "https://hook.eu1.make.com/nezg3qpgi3lcvwbrqaunds1so9iwi4xh",
+  CAPACITE: 2,            // places max par session vendues via Shopify (site + bons), le reste est laissé à Wecandoo & co — doit être identique à la variable "cap" du scénario Make
+  DELAI_MIN_JOURS: 2,     // on ne peut pas réserver moins de 2 jours avant
+  HORIZON_JOURS: 120,     // jusqu'où on propose des dates
+  ATELIERS: {
+    latte:       { nom: "Atelier latte art",            debut: "14:30", fin: "16:30", jours: [6, 0], cle: "latte" },
+    degustation: { nom: "Atelier dégustation de cafés", debut: "10:30", fin: "12:30", jours: [6, 0], cle: "dégustation" }
+  },
+  // Dates fermées (vacances, privatisation…) au format AAAA-MM-JJ, optionnellement par atelier
+  FERMETURES: [
+    // { date: "2026-12-26" },                       // fermé pour tous les ateliers
+    // { date: "2027-01-02", atelier: "latte" },     // fermé pour le latte art seulement
+  ]
+};
+</script>
+<style>
+/* Charte terrah.co : vert Terrah #013938, terracotta #C34621, crème #FCF5EF, Montserrat */
+:root{
+  --teal:#013938; --teal-75:rgba(1,57,56,.75); --orange:#c34621; --orange-dark:#a93a1a;
+  --cream:#fcf5ef; --sand:#f7f5f2; --blush:#f3e1d8; --white:#fff;
+  --muted:#4a5a5a; --line:#e2ddd3; --err:#c34621; --ok:#013938;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--sand);color:var(--teal-75);font:15px/1.6 Montserrat,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;letter-spacing:.6px;-webkit-font-smoothing:antialiased}
+.topbar{background:var(--orange);color:rgba(253,253,253,.9);text-align:center;font-size:13px;padding:9px 16px}
+header.site{background:var(--cream);display:flex;justify-content:center;padding:14px 16px}
+header.site img{height:56px;width:auto;display:block}
+.hero{background:var(--cream);padding:28px 16px 40px}
+.hero .in,.wrap{max-width:600px;margin:0 auto}
+.badge{display:inline-block;background:var(--blush);color:var(--orange);font-size:12.5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border-radius:999px;padding:6px 12px}
+h1{color:var(--teal);font-weight:700;font-size:clamp(28px,7vw,40px);line-height:1.15;letter-spacing:.2px;margin:16px 0 12px}
+h1 em{font-style:normal;color:var(--orange)}
+.lead{color:var(--muted);font-size:17px;margin:0}
+.wrap{padding:0 16px 64px;margin-top:-18px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:24px 20px}
+.step{display:none}.step.on{display:block;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+label{display:block;color:var(--teal);font-weight:600;font-size:14px;margin:0 0 6px}
+.hint{font-size:13px;color:var(--muted);margin:4px 0 0}
+input{width:100%;font:inherit;color:var(--teal);background:var(--white);border:1px solid var(--line);border-radius:10px;padding:12px 14px;outline:none}
+input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(1,57,56,.12)}
+.field{margin-bottom:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;font:inherit;font-size:15.5px;font-weight:600;border:1px solid transparent;border-radius:999px;padding:14px 24px;background:var(--orange);color:#fff;cursor:pointer;transition:background .15s}
+.btn:hover:not([disabled]){background:var(--orange-dark)}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn.ghost{background:var(--white);color:var(--teal);border-color:var(--line);width:auto;padding:12px 20px}
+.btn.ghost:hover{background:var(--cream)}
+.err{color:var(--err);font-size:14px;font-weight:500;margin:12px 0 0;min-height:1em}
+.err a{color:inherit}
+.bon{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px dashed var(--line);padding-bottom:14px;margin-bottom:18px}
+.bon b{color:var(--teal);font-weight:700;font-size:20px}
+.bon span{color:var(--muted);font-size:13px;text-align:right}
+.seg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.seg button{flex:1;min-width:140px;font:inherit;font-weight:600;border:1px solid var(--line);background:var(--white);color:var(--teal);border-radius:10px;padding:12px;cursor:pointer;text-align:left}
+.seg button[aria-pressed="true"]{border-color:var(--orange);background:var(--blush)}
+.seg small{display:block;color:var(--muted);font-weight:400}
+.stepper{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.stepper button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--white);color:var(--teal);font-size:20px;cursor:pointer}
+.stepper button[disabled]{opacity:.35;cursor:default}
+.stepper output{color:var(--teal);font-weight:700;font-size:18px;min-width:90px;text-align:center}
+.month{color:var(--teal);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:1px;margin:20px 0 10px}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.slot{font:inherit;text-align:left;border:1px solid var(--line);background:var(--white);color:var(--teal);border-radius:10px;padding:10px 12px;cursor:pointer;transition:border-color .15s,background .15s}
+.slot:hover{border-color:var(--teal)}
+.slot b{display:block;font-weight:600;text-transform:capitalize}
+.slot small{color:var(--muted)}
+.slot[aria-pressed="true"]{border-color:var(--orange);background:var(--blush)}
+.slot.few small{color:var(--orange);font-weight:600}
+.recap{background:var(--cream);border-radius:10px;padding:14px 16px;margin-bottom:20px;color:var(--teal)}
+.recap b{font-weight:700}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
+.done{text-align:center;padding:10px 0}
+.done .ico{width:56px;height:56px;border-radius:50%;background:var(--blush);color:var(--orange);display:grid;place-items:center;margin:0 auto 14px}
+.done h2{color:var(--teal);font-weight:700;font-size:26px;margin:0 0 8px}
+.done b{color:var(--teal)}
+.foot{margin-top:28px;text-align:center;color:var(--muted);font-size:13px}
+.foot a{color:var(--teal);font-weight:600}
+.spin{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:r .7s linear infinite;display:none}
+.busy .spin{display:inline-block}
+@keyframes r{to{transform:rotate(360deg)}}
+.empty{color:var(--muted);font-size:14px;padding:14px 0}
+</style>
+</head>
+<body>
+<div class="topbar">Ateliers café · 26 rue Oberkampf, Paris 11e</div>
+<header class="site"><a href="https://terrah.co"><img src="https://terrah.co/cdn/shop/files/02_Terrah_brand_formatosRGB_BR_Terrah_paris.png?width=300" alt="Terrah Paris"></a></header>
+<section class="hero"><div class="in">
+  <span class="badge">★ Bon cadeau · Atelier café</span>
+  <h1>Votre atelier offert,<br><em>à la date qui vous va</em></h1>
+  <p class="lead">Quelqu'un vous a offert un atelier chez Terrah. Choisissez votre créneau en deux minutes.</p>
+</div></section>
+<main class="wrap">
+
+  <!-- Étape 1 : identification du bon -->
+  <section class="step card on" id="s1">
+    <form id="f1" novalidate>
+      <div class="field">
+        <label for="order">Numéro de commande</label>
+        <input id="order" inputmode="numeric" autocomplete="off" placeholder="ex. 1482" required>
+        <p class="hint">Il figure sur le bon cadeau ou le mail de confirmation Shopify (#1482).</p>
+      </div>
+      <div class="field">
+        <label for="prenom">Prénom de la personne qui vous l'a offert</label>
+        <input id="prenom" autocomplete="off" placeholder="ex. Alice" required>
+      </div>
+      <button class="btn" type="submit"><span class="spin"></span><span>Trouver mon bon</span></button>
+      <p class="err" id="e1" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Étape 2 : atelier, places, créneau -->
+  <section class="step card" id="s2">
+    <div class="bon"><b id="bonTitre">Bon cadeau</b><span id="bonInfo"></span></div>
+    <div id="choixAtelier"></div>
+    <label>Nombre de places</label>
+    <div class="stepper">
+      <button type="button" id="moins" aria-label="Une place de moins">−</button>
+      <output id="nb">1 place</output>
+      <button type="button" id="plus" aria-label="Une place de plus">+</button>
+    </div>
+    <label>Choisissez un créneau</label>
+    <div id="cal"><p class="empty">Chargement des disponibilités…</p></div>
+    <p class="err" id="e2" role="alert"></p>
+    <div class="row" style="margin-top:20px">
+      <button type="button" class="btn ghost" data-back="s1">← Retour</button>
+      <button type="button" class="btn" id="go3" style="width:auto" disabled>Continuer</button>
+    </div>
+  </section>
+
+  <!-- Étape 3 : coordonnées -->
+  <section class="step card" id="s3">
+    <div class="recap" id="recap"></div>
+    <form id="f3" novalidate>
+      <div class="field"><label for="nom">Votre nom et prénom</label><input id="nom" autocomplete="name" required></div>
+      <div class="field"><label for="email">Votre e-mail</label><input id="email" type="email" autocomplete="email" required>
+        <p class="hint">Vous y recevrez la confirmation.</p></div>
+      <div class="field"><label for="tel">Votre téléphone</label><input id="tel" type="tel" autocomplete="tel" required></div>
+      <div class="row">
+        <button type="button" class="btn ghost" data-back="s2">← Retour</button>
+        <button class="btn" type="submit" style="width:auto"><span class="spin"></span><span>Confirmer la réservation</span></button>
+      </div>
+      <p class="err" id="e3" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Étape 4 : confirmation -->
+  <section class="step card" id="s4">
+    <div class="done">
+      <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2>C'est réservé !</h2>
+      <p id="doneTxt"></p>
+      <p class="hint">Terrah · 26 rue Oberkampf, 75011 Paris</p>
+    </div>
+  </section>
+
+  <p class="foot">Une question ? <a href="mailto:contact@terrah.co">contact@terrah.co</a></p>
+</main>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const ERREURS = {
+    commande:   "Nous ne trouvons pas cette commande. Vérifiez le numéro (ex. 1482).",
+    prenom:     "Le prénom ne correspond pas à celui de la personne qui a passé la commande.",
+    annulee:    "Cette commande a été annulée.",
+    expire:     "Ce bon cadeau a expiré (validité 1 an). Écrivez-nous à contact@terrah.co.",
+    pas_cadeau: "Cette commande ne contient pas de bon cadeau atelier.",
+    places:     "Il ne reste pas assez de places sur ce bon.",
+    complet:    "Ce créneau vient d'être complet, choisissez-en un autre.",
+    date:       "Ce créneau n'est plus réservable, choisissez-en un autre.",
+    creneau:    "Ce créneau n'existe pas, choisissez-en un autre.",
+    reseau:     "Connexion impossible pour le moment. Réessayez dans un instant."
+  };
+  const MOIS_EN = {january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
+
+  const st = { order:"", bon:null, atelier:null, places:1, slot:null, occupation:null };
+
+  async function api(params){
+    const r = await fetch(CONFIG.WEBHOOK, { method:"POST", body:new URLSearchParams(params) });
+    const t = await r.text();
+    if (!r.ok || t.trim() === "Accepted") throw new Error("reseau");
+    return t;
+  }
+  function show(id){ document.querySelectorAll(".step").forEach(s => s.classList.toggle("on", s.id === id)); window.scrollTo({top:0,behavior:"smooth"}); }
+  function busy(form, on){ const b = form.querySelector("button[type=submit]"); b.disabled = on; b.classList.toggle("busy", on); }
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const dateTxt = d => d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const restant = k => st.bon[k].achetes - st.bon[k].utilises;
+
+  document.querySelectorAll("[data-back]").forEach(b => b.onclick = () => show(b.dataset.back));
+
+  // ---------- Étape 1
+  $("#f1").onsubmit = async e => {
+    e.preventDefault();
+    const order = $("#order").value.replace(/\D/g,""), prenom = $("#prenom").value.trim();
+    $("#e1").textContent = "";
+    if (!order || prenom.length < 2) { $("#e1").textContent = "Renseignez le numéro de commande et le prénom."; return; }
+    busy(e.target, true);
+    try {
+      const res = JSON.parse(await api({ action:"verifier", order, prenom }));
+      if (res.erreur) { $("#e1").textContent = ERREURS[res.erreur] || ERREURS.reseau; return; }
+      const dispo = Object.keys(CONFIG.ATELIERS).filter(k => res[k] && res[k].achetes - res[k].utilises > 0);
+      if (!dispo.length) { $("#e1").textContent = "Toutes les places de ce bon ont déjà été réservées."; return; }
+      st.order = order; st.bon = res; st.atelier = dispo[0]; st.places = 1; st.slot = null;
+      $("#bonTitre").textContent = "Bon " + res.commande;
+      $("#bonInfo").textContent = "valable jusqu'au " + res.expire;
+      renderChoix(dispo);
+      show("s2");
+      loadDispos();
+    } catch(err) { $("#e1").textContent = ERREURS.reseau; }
+    finally { busy(e.target, false); }
+  };
+
+  function renderChoix(dispo){
+    const box = $("#choixAtelier");
+    if (dispo.length < 2) {
+      const k = dispo[0];
+      box.innerHTML = `<p style="margin:0 0 18px"><b>${CONFIG.ATELIERS[k].nom}</b><br><span class="hint">${restant(k)} place(s) offerte(s) à réserver</span></p>`;
+      return;
+    }
+    box.innerHTML = `<label>Atelier</label><div class="seg">${dispo.map(k =>
+      `<button type="button" data-k="${k}" aria-pressed="${k===st.atelier}">${CONFIG.ATELIERS[k].nom}<small>${restant(k)} place(s) à réserver</small></button>`).join("")}</div>`;
+    box.querySelectorAll("button").forEach(b => b.onclick = () => {
+      st.atelier = b.dataset.k; st.places = 1; st.slot = null;
+      box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+      renderAll();
+    });
+  }
+
+  // ---------- Disponibilités
+  async function loadDispos(){
+    $("#cal").innerHTML = '<p class="empty">Chargement des disponibilités…</p>';
+    $("#e2").textContent = "";
+    try {
+      st.occupation = parseOccupation(await api({ action:"dispos" }));
+      renderAll();
+    } catch(err) {
+      $("#cal").innerHTML = "";
+      $("#e2").innerHTML = 'Impossible de charger les créneaux. <a href="#" id="retry">Réessayer</a>';
+      $("#retry").onclick = ev => { ev.preventDefault(); loadDispos(); };
+    }
+  }
+
+  // Lignes Easy Appointment Booking : "Titre|Saturday, November 14th 2026|14:30|2" puis "#BONS" puis "[latte/2026-11-14/14:30]..."
+  function parseOccupation(txt){
+    const occ = {};
+    const add = (k, d, h, n) => { const id = `${k}/${d}/${h}`; occ[id] = (occ[id] || 0) + n; };
+    const [eab, bons = ""] = txt.split("#BONS");
+    eab.split("\n").forEach(l => {
+      const [titre, dateEn, heure, qte] = l.split("|");
+      if (!titre || !dateEn) return;
+      const k = Object.keys(CONFIG.ATELIERS).find(a => titre.toLowerCase().includes(CONFIG.ATELIERS[a].cle));
+      const m = dateEn.trim().match(/^\w+,\s+(\w+)\s+(\d+)\w*\s+(\d{4})$/);
+      if (!k || !m || !(m[1].toLowerCase() in MOIS_EN)) return;
+      add(k, iso(new Date(+m[3], MOIS_EN[m[1].toLowerCase()], +m[2])), (heure||"").trim(), parseInt(qte,10) || 0);
+    });
+    (bons.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\]/g) || []).forEach(t => {
+      const [, k, d, h] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\]/);
+      add(k, d, h, 1);
+    });
+    return occ;
+  }
+
+  function sessions(){
+    const a = CONFIG.ATELIERS[st.atelier], out = [];
+    const ferme = new Set(CONFIG.FERMETURES.filter(f => !f.atelier || f.atelier === st.atelier).map(f => f.date));
+    const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + CONFIG.DELAI_MIN_JOURS);
+    for (let i = 0; i < CONFIG.HORIZON_JOURS; i++, d.setDate(d.getDate()+1)) {
+      if (!a.jours.includes(d.getDay()) || ferme.has(iso(d))) continue;
+      const pris = st.occupation[`${st.atelier}/${iso(d)}/${a.debut}`] || 0;
+      const libres = CONFIG.CAPACITE - pris;
+      if (libres >= st.places) out.push({ date:new Date(d), libres });
+    }
+    return out;
+  }
+
+  function renderAll(){
+    const max = restant(st.atelier);
+    st.places = Math.min(Math.max(1, st.places), max);
+    $("#nb").textContent = st.places + (st.places > 1 ? " places" : " place");
+    $("#moins").disabled = st.places <= 1; $("#plus").disabled = st.places >= max;
+    if (!st.occupation) return;
+    const list = sessions(), a = CONFIG.ATELIERS[st.atelier];
+    if (st.slot && !list.some(s => iso(s.date) === st.slot)) st.slot = null;
+    $("#go3").disabled = !st.slot;
+    if (!list.length) { $("#cal").innerHTML = '<p class="empty">Aucun créneau disponible pour le moment. Écrivez-nous à contact@terrah.co.</p>'; return; }
+    let html = "", mois = "";
+    list.forEach(s => {
+      const m = s.date.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+      if (m !== mois) { html += (mois ? "</div>" : "") + `<div class="month">${m}</div><div class="slots">`; mois = m; }
+      const few = s.libres <= 1;
+      html += `<button type="button" class="slot${few?" few":""}" data-d="${iso(s.date)}" aria-pressed="${iso(s.date)===st.slot}">
+        <b>${s.date.toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}</b>
+        <small>${a.debut.replace(":","h")} – ${a.fin.replace(":","h")}${few ? " · " + s.libres + " place" + (s.libres>1?"s":"") + " restante" + (s.libres>1?"s":"") : ""}</small></button>`;
+    });
+    $("#cal").innerHTML = html + "</div>";
+    $("#cal").querySelectorAll(".slot").forEach(b => b.onclick = () => {
+      st.slot = b.dataset.d;
+      $("#cal").querySelectorAll(".slot").forEach(x => x.setAttribute("aria-pressed", x === b));
+      $("#go3").disabled = false;
+    });
+  }
+  $("#moins").onclick = () => { st.places--; renderAll(); };
+  $("#plus").onclick  = () => { st.places++; renderAll(); };
+
+  // ---------- Étape 3
+  const slotDate = () => { const [y,m,d] = st.slot.split("-").map(Number); return new Date(y, m-1, d); };
+  $("#go3").onclick = () => {
+    const a = CONFIG.ATELIERS[st.atelier];
+    $("#recap").innerHTML = `<b>${a.nom}</b><br>${dateTxt(slotDate())}, ${a.debut.replace(":","h")} – ${a.fin.replace(":","h")}<br>${st.places} place${st.places>1?"s":""} · bon #${st.order}`;
+    $("#e3").textContent = "";
+    show("s3");
+  };
+
+  $("#f3").onsubmit = async e => {
+    e.preventDefault();
+    const nom = $("#nom").value.trim(), email = $("#email").value.trim(), tel = $("#tel").value.trim();
+    $("#e3").textContent = "";
+    if (nom.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || tel.replace(/\D/g,"").length < 8) {
+      $("#e3").textContent = "Vérifiez votre nom, votre e-mail et votre téléphone."; return;
+    }
+    const a = CONFIG.ATELIERS[st.atelier];
+    busy(e.target, true);
+    try {
+      const res = JSON.parse(await api({
+        action:"reserver", order:st.order, prenom:$("#prenom").value.trim(),
+        atelier:st.atelier, date:st.slot, heure:a.debut, date_txt:dateTxt(slotDate()),
+        places:String(st.places), nom, email, tel
+      }));
+      if (res.erreur) {
+        $("#e3").textContent = ERREURS[res.erreur] || ERREURS.reseau;
+        if (["complet","date","creneau"].includes(res.erreur)) { st.slot = null; loadDispos(); }
+        return;
+      }
+      $("#doneTxt").innerHTML = `${a.nom}<br><b>${dateTxt(slotDate())} à ${a.debut.replace(":","h")}</b><br>${st.places} place${st.places>1?"s":""}. Un e-mail de confirmation part à ${email.replace(/[<>&]/g,"")}.`;
+      show("s4");
+    } catch(err) { $("#e3").textContent = ERREURS.reseau; }
+    finally { busy(e.target, false); }
+  };
+})();
+</script>
+</body>
+</html>
