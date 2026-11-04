@@ -178,7 +178,8 @@ body:not(.is-admin) #admin{display:none}
 #admin .rbar i{display:block;height:100%;border-radius:999px}
 #admin .c-wec{background:#e3a35b}#admin .c-shop{background:#2e7d5b}#admin .c-tot{background:var(--orange)}
 #admin .src.wec{background:#fbe9d2;color:#9a5a12}
-#admin .task.t-cap{border-left-color:#b3261e}#admin .task.t-form{border-left-color:#e3a35b}
+#admin .task.t-cap{border-left-color:#b3261e}#admin .task.t-form{border-left-color:#e3a35b}#admin .task.t-risk{border-left-color:#b3261e;background:#fdf1ee}
+#admin .pill.risk{background:#b3261e;color:#fff;margin-left:6px}
 #admin .task small{display:block;color:var(--muted)}#admin .task .act{display:block}
 #admin .mois-nav{display:flex;align-items:center;gap:14px;margin:16px 0 0}
 #admin .mois-nav b{color:var(--teal);font-size:18px;text-transform:capitalize;min-width:160px;text-align:center}
@@ -637,6 +638,7 @@ body:not(.is-admin) #admin{display:none}
     latte:       { total: 8,  wecandoo: 6, shopify: 2 },
     degustation: { total: 19, wecandoo: 6, shopify: 2 }
   };
+  const SEUIL_WEC = 4; // en dessous : atelier à risque d'annulation
   const KEYS = Object.keys(CONFIG.ATELIERS);
   const NOMS = { latte:"Latte art", degustation:"Dégustation" };
   const MOIS_EN = {january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
@@ -687,7 +689,7 @@ body:not(.is-admin) #admin{display:none}
     wec.forEach(e => {
       if (!e || e.status === "cancelled" || !e.start) return;
       const a = atelierDe(e.summary); const dt = e.start.dateTime || e.start.date; if (!a || !dt) return;
-      const d = dt.slice(0, 10); const s = get(a, d);
+      const d = dt.slice(0, 10); const s = get(a, d); s.wecEvt = true;
       const lignes = (e.description || "").replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, " ").split("\n");
       let nDet = 0;
       lignes.forEach(l => { const m = l.trim().match(/^(\d+)\s+places?\s+-\s+(.*)$/i); if (!m) return;
@@ -744,7 +746,11 @@ body:not(.is-admin) #admin{display:none}
       if (s.total > c.total) urg.push({ date:s.date, type:"cap", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.nWec} Wecandoo + ${s.nShop} Shopify = ${s.total}</small><span class="act">Session en surréservation : ${s.total}/${c.total} places</span>` });
       else if (s.nShop > c.shopify) urg.push({ date:s.date, type:"cap", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>Quota Shopify ${c.shopify}</small><span class="act">${s.nShop} places Shopify vendues pour ${c.shopify} prévues</span>` });
     });
-    // 3. Sessions des 14 prochains jours avec inscrits mais sans formateur
+    // 3. Ateliers des 3 prochaines semaines à risque d'annulation (moins de 4 inscrits Wecandoo)
+    const lim21 = iso(new Date(Date.now() + 21 * 864e5));
+    Object.values(S).filter(s => s.wecEvt && s.date >= today && s.date <= lim21 && s.nWec < SEUIL_WEC && !closed.has(`${s.atelier}/${s.date}`)).forEach(s =>
+      urg.push({ date:s.date, type:"risk", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.nWec} inscrit(s) Wecandoo${s.nShop ? ` + ${s.nShop} Shopify` : ""}</small><span class="act">⚠️ Risque d'annulation : moins de ${SEUIL_WEC} inscrits Wecandoo</span>`, btn:`<button class="btn ghost" data-goto="planning">Voir</button>` }));
+    // 4. Sessions des 14 prochains jours avec inscrits mais sans formateur
     const lim = iso(new Date(Date.now() + 14 * 864e5));
     Object.values(S).filter(s => s.date >= today && s.date <= lim && s.total > 0 && !form[`${s.atelier}/${s.date}`]).forEach(s =>
       urg.push({ date:s.date, type:"form", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.total} inscrit(s)</small><span class="act">Aucun formateur attribué</span>`, btn:`<button class="btn ghost" data-goto="formateurs" data-mois="${s.date.slice(0,7)}">Attribuer</button>` }));
@@ -753,7 +759,7 @@ body:not(.is-admin) #admin{display:none}
     $("#todo").innerHTML = urg.length ? urg.map(u => `<div class="task t-${u.type}"><div>${u.html}</div>${u.btn || ""}</div>`).join("")
       : `<p class="empty">Rien d'urgent. 👌</p>`;
     $("#todo").querySelectorAll("[data-k]").forEach(b => b.onclick = () => marquer(b));
-    $("#todo").querySelectorAll("[data-goto]").forEach(b => b.onclick = () => { st.mois = b.dataset.mois; onglet("formateurs"); });
+    $("#todo").querySelectorAll("[data-goto]").forEach(b => b.onclick = () => { if (b.dataset.mois) st.mois = b.dataset.mois; onglet(b.dataset.goto); });
 
     // Remplissage
     const debut = new Date(); debut.setHours(0,0,0,0); const fin = new Date(debut); fin.setDate(fin.getDate() + st.periode);
@@ -806,7 +812,7 @@ body:not(.is-admin) #admin{display:none}
   // ---------- PLANNING
   function renderPlanning(){
     const { S, form, contacts } = st.data, today = iso(new Date());
-    const list = Object.values(S).filter(s => s.date >= today && s.total > 0 && (st.filtre === "tous" || s.atelier === st.filtre))
+    const list = Object.values(S).filter(s => s.date >= today && (s.total > 0 || (s.wecEvt && s.date <= iso(new Date(Date.now() + 21 * 864e5)))) && (st.filtre === "tous" || s.atelier === st.filtre))
       .sort((x,y) => (x.date + CONFIG.ATELIERS[x.atelier].debut).localeCompare(y.date + CONFIG.ATELIERS[y.atelier].debut));
     const tel = t => t ? `<a href="tel:${esc(t)}">${esc(t)}</a>` : "";
     const mail = m => m ? `<a href="mailto:${esc(m)}">${esc(m)}</a>` : "";
@@ -819,7 +825,7 @@ body:not(.is-admin) #admin{display:none}
           return `<tr><td><span class="src bon">Bon</span></td><td>${esc(k.nom || "?")}</td><td>${n}</td><td>${tel(k.tel)}</td><td class="hide-m">${mail(k.email)}</td><td class="hide-m">#${esc(num)}</td></tr>`; })
       ].join("");
       return `<div class="card day"><div class="day-h"><b>${dLong(s.date)} · ${CONFIG.ATELIERS[s.atelier].debut.replace(":","h")} · ${NOMS[s.atelier]}</b>
-        <span class="pill${s.total >= c.total ? " full" : ""}">${s.total}/${c.total}</span></div>
+        <span><span class="pill${s.total >= c.total ? " full" : ""}">${s.total}/${c.total}</span>${s.wecEvt && s.nWec < SEUIL_WEC && s.date <= iso(new Date(Date.now() + 21 * 864e5)) ? `<span class="pill risk">À risque</span>` : ""}</span></div>
         <p class="muted" style="margin:0 0 8px">Wecandoo ${s.nWec}/${c.wecandoo} · Shopify ${s.nShop}/${c.shopify} · Formateur : <b>${f ? esc(f) : "à attribuer"}</b></p>
         <table><thead><tr><th>Source</th><th>Nom</th><th>Pl.</th><th>Téléphone</th><th class="hide-m">E-mail</th><th class="hide-m">Commande</th></tr></thead><tbody>${rows}</tbody></table></div>`;
     }).join("") : `<p class="empty">Aucune réservation à venir.</p>`;
