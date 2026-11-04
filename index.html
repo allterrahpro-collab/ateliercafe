@@ -184,6 +184,7 @@ body:not(.is-admin) #admin{display:none}
 #admin .bclose{margin-left:10px;padding:4px 12px;font-size:12px}
 #admin .fclose{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
 #admin .fclose b{color:var(--teal);width:100%}
+#admin .res-btns{display:flex;gap:10px;flex-wrap:wrap}#admin .res-etat:empty{display:none}
 #admin .fclose select,#admin .fclose input{width:auto;padding:8px 10px;font-size:14px}
 #admin .task small{display:block;color:var(--muted)}#admin .task .act{display:block}
 #admin .mois-nav{display:flex;align-items:center;gap:14px;margin:16px 0 0}
@@ -316,6 +317,7 @@ body:not(.is-admin) #admin{display:none}
       <button type="button" data-t="cadeaux" aria-selected="false">Calendrier cadeaux Shopify</button>
       <button type="button" data-t="planning" aria-selected="false">Planning des ateliers</button>
       <button type="button" data-t="formateurs" aria-selected="false">Formateurs</button>
+      <button type="button" data-t="ressources" aria-selected="false">Ressources</button>
     </nav>
 
     <!-- ACCUEIL -->
@@ -368,6 +370,17 @@ body:not(.is-admin) #admin{display:none}
       <div class="card" id="assign"></div>
       <h2>Récapitulatif sur 6 mois</h2>
       <div class="card" style="overflow-x:auto" id="recap6"></div>
+    </div>
+
+    <!-- RESSOURCES -->
+    <div class="apane" id="p-ressources" hidden>
+      <p class="muted">Les déroulés des ateliers, à relire avant d'animer.</p>
+      <div class="rgrid" id="ressources">
+        <div class="card res" data-pdf="deroulement-atelier-latte-art.pdf"><p class="rt">Déroulement · Atelier latte art <small>4 pages</small></p>
+          <p class="res-etat muted"></p><div class="res-btns"><a class="btn" target="_blank" rel="noopener" href="deroulement-atelier-latte-art.pdf">Ouvrir le PDF</a><a class="btn ghost" download href="deroulement-atelier-latte-art.pdf">Télécharger</a></div></div>
+        <div class="card res" data-pdf="deroulement-atelier-degustation.pdf"><p class="rt">Déroulement · Atelier dégustation <small>9 pages</small></p>
+          <p class="res-etat muted"></p><div class="res-btns"><a class="btn" target="_blank" rel="noopener" href="deroulement-atelier-degustation.pdf">Ouvrir le PDF</a><a class="btn ghost" download href="deroulement-atelier-degustation.pdf">Télécharger</a></div></div>
+      </div>
     </div>
   </div>
 </section>
@@ -930,6 +943,11 @@ body:not(.is-admin) #admin{display:none}
     document.querySelectorAll("#atabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t));
     document.querySelectorAll(".apane").forEach(p => p.hidden = p.id !== "p-" + t);
     if (t === "formateurs" && st.data) renderFormateurs();
+    if (t === "ressources") document.querySelectorAll("#ressources .res").forEach(async c => {
+      const e = c.querySelector(".res-etat"); if (e.dataset.ok) return;
+      try { const r = await fetch(c.dataset.pdf, { method:"HEAD", cache:"no-store" }); e.dataset.ok = r.ok ? "1" : "";
+        e.textContent = r.ok ? "" : "PDF pas encore en ligne sur GitHub."; } catch(_) {}
+    });
   }
   document.querySelectorAll("#atabs button").forEach(b => b.onclick = () => onglet(b.dataset.t));
 
