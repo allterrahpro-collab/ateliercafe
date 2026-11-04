@@ -166,6 +166,26 @@ header.site{position:relative}
 .admin-btn:hover{background:var(--white)}
 body.is-admin .hero,body.is-admin main.wrap,body.is-admin .topbar{display:none}
 body:not(.is-admin) #admin{display:none}
+#admin .atabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin:8px 0 6px}
+#admin .atabs button{font:inherit;font-size:14px;font-weight:600;border:0;background:transparent;color:var(--muted);padding:10px 14px;border-bottom:3px solid transparent;cursor:pointer}
+#admin .atabs button[aria-selected="true"]{color:var(--teal);border-bottom-color:var(--orange)}
+#admin .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+#admin .rt{color:var(--teal);font-weight:700;margin:0 0 10px}
+#admin .rt small{color:var(--muted);font-weight:400;margin-left:6px}
+#admin .rrow{display:grid;grid-template-columns:1fr 2fr auto;gap:8px;align-items:center;font-size:13px;margin:8px 0;color:var(--teal)}
+#admin .rrow small{grid-column:2/4;color:var(--muted);margin-top:-6px}
+#admin .rbar{height:10px;background:var(--sand);border-radius:999px;overflow:hidden}
+#admin .rbar i{display:block;height:100%;border-radius:999px}
+#admin .c-wec{background:#e3a35b}#admin .c-shop{background:#2e7d5b}#admin .c-tot{background:var(--orange)}
+#admin .src.wec{background:#fbe9d2;color:#9a5a12}
+#admin .task.t-cap{border-left-color:#b3261e}#admin .task.t-form{border-left-color:#e3a35b}
+#admin .task small{display:block;color:var(--muted)}#admin .task .act{display:block}
+#admin .mois-nav{display:flex;align-items:center;gap:14px;margin:16px 0 0}
+#admin .mois-nav b{color:var(--teal);font-size:18px;text-transform:capitalize;min-width:160px;text-align:center}
+#admin .finput{max-width:220px;padding:8px 10px;font-size:14px}
+#admin .fstate{margin-left:8px;color:#2e7d5b;font-weight:600}
+#admin table.assign td{vertical-align:middle}
+
 #admin .dmois{color:var(--teal);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px}
 #admin .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
 #admin .dchip{font:inherit;text-align:left;border:1px solid #9cc7b0;background:#eef7f1;color:var(--teal);border-radius:10px;padding:8px 10px;cursor:pointer}
@@ -285,27 +305,61 @@ body:not(.is-admin) #admin{display:none}
   </div>
   <div id="app" hidden>
     <p class="muted" id="maj"></p>
-    <h2>À faire dans Easy Appointment Booking <span class="count" id="nTodo">0</span></h2>
-    <p class="muted" style="margin-top:-6px">Les réservations par bon cadeau ne sont pas visibles dans EAB : retire ces places à la main, puis clique sur « C'est fait ».</p>
-    <div class="todo" id="todo"></div>
-    <h2>Dates ouvertes aux bons cadeaux</h2>
-    <p class="muted" style="margin-top:-6px">Clique sur une date pour l'ouvrir ou la fermer à la réservation par bon cadeau. Les dates fermées n'apparaissent plus côté client.</p>
-    <div class="tabs" id="fDates">
-      <button type="button" data-f="" aria-pressed="true">Les deux</button>
-      <button type="button" data-f="latte" aria-pressed="false">Latte art</button>
-      <button type="button" data-f="degustation" aria-pressed="false">Dégustation</button>
-    </div>
-    <div id="dates" style="margin-top:12px"></div>
+    <nav class="atabs" id="atabs">
+      <button type="button" data-t="accueil" aria-selected="true">Accueil</button>
+      <button type="button" data-t="cadeaux" aria-selected="false">Calendrier cadeaux Shopify</button>
+      <button type="button" data-t="planning" aria-selected="false">Planning des ateliers</button>
+      <button type="button" data-t="formateurs" aria-selected="false">Formateurs</button>
+    </nav>
 
-    <h2>Planning des ateliers</h2>
-    <div class="tabs" id="filtre">
-      <button type="button" data-f="tous" aria-pressed="true">Tous</button>
-      <button type="button" data-f="latte" aria-pressed="false">Latte art</button>
-      <button type="button" data-f="degustation" aria-pressed="false">Dégustation</button>
+    <!-- ACCUEIL -->
+    <div class="apane" id="p-accueil">
+      <h2>Actions urgentes <span class="count" id="nTodo">0</span></h2>
+      <div class="todo" id="todo"></div>
+      <h2>Taux de remplissage par plateforme</h2>
+      <div class="tabs" id="fPeriode">
+        <button type="button" data-j="14" aria-pressed="false">14 jours</button>
+        <button type="button" data-j="30" aria-pressed="true">30 jours</button>
+        <button type="button" data-j="60" aria-pressed="false">60 jours</button>
+      </div>
+      <div id="remplissage" class="rgrid" style="margin-top:12px"></div>
+      <h2>Dernières actions des bons cadeaux</h2>
+      <div class="card"><ul class="journal" id="journal"></ul></div>
     </div>
-    <div id="planning" style="margin-top:12px"></div>
-    <h2>Dernières actions des bons cadeaux</h2>
-    <div class="card"><ul class="journal" id="journal"></ul></div>
+
+    <!-- CALENDRIER CADEAUX -->
+    <div class="apane" id="p-cadeaux" hidden>
+      <p class="muted">Clique sur une date pour l'ouvrir ou la fermer à la réservation par bon cadeau. Les dates fermées n'apparaissent plus côté client. Quota Shopify : 2 places par session (site + bons).</p>
+      <div class="tabs" id="fDates">
+        <button type="button" data-f="" aria-pressed="true">Les deux</button>
+        <button type="button" data-f="latte" aria-pressed="false">Latte art</button>
+        <button type="button" data-f="degustation" aria-pressed="false">Dégustation</button>
+      </div>
+      <div id="dates" style="margin-top:12px"></div>
+    </div>
+
+    <!-- PLANNING -->
+    <div class="apane" id="p-planning" hidden>
+      <div class="tabs" id="filtre">
+        <button type="button" data-f="tous" aria-pressed="true">Tous</button>
+        <button type="button" data-f="latte" aria-pressed="false">Latte art</button>
+        <button type="button" data-f="degustation" aria-pressed="false">Dégustation</button>
+      </div>
+      <div id="planning" style="margin-top:12px"></div>
+    </div>
+
+    <!-- FORMATEURS -->
+    <div class="apane" id="p-formateurs" hidden>
+      <div class="mois-nav"><button type="button" class="btn ghost" id="moisPrev">←</button><b id="moisLabel"></b><button type="button" class="btn ghost" id="moisNext">→</button></div>
+      <h2>Ateliers animés ce mois-ci</h2>
+      <div class="card" id="decompte"></div>
+      <h2>Attribuer les formateurs</h2>
+      <p class="muted">Écris le nom du formateur pour chaque session, il est enregistré automatiquement.</p>
+      <datalist id="nomsFormateurs"></datalist>
+      <div class="card" id="assign"></div>
+      <h2>Récapitulatif sur 6 mois</h2>
+      <div class="card" style="overflow-x:auto" id="recap6"></div>
+    </div>
   </div>
 </section>
 
@@ -578,6 +632,11 @@ body:not(.is-admin) #admin{display:none}
 <script>
 (() => {
   const $ = s => document.querySelector(s);
+  // Capacités par atelier : total de la session et quotas par plateforme
+  const CAP = {
+    latte:       { total: 8,  wecandoo: 6, shopify: 2 },
+    degustation: { total: 19, wecandoo: 6, shopify: 2 }
+  };
   const KEYS = Object.keys(CONFIG.ATELIERS);
   const NOMS = { latte:"Latte art", degustation:"Dégustation" };
   const MOIS_EN = {january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
@@ -587,7 +646,8 @@ body:not(.is-admin) #admin{display:none}
   const dLong = s => fromIso(s).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
   const dShort = s => fromIso(s).toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"});
   const pl = n => n + (n > 1 ? " places" : " place");
-  const st = { code:"", data:null, filtre:"tous" };
+  const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
+  const st = { code:"", data:null, filtre:"tous", datesAt:"", periode:30, mois:null };
   const store = { get(){ try { return localStorage.getItem("terrah_equipe_code") || ""; } catch(e){ return ""; } },
                   set(v){ try { v ? localStorage.setItem("terrah_equipe_code", v) : localStorage.removeItem("terrah_equipe_code"); } catch(e){} } };
 
@@ -598,98 +658,119 @@ body:not(.is-admin) #admin{display:none}
     if (t.trim().startsWith('{"erreur":"code"')) throw new Error("code");
     return t;
   }
+  const section = (txt, nom) => { const i = txt.indexOf("\n#" + nom + "\n"); if (i < 0) return ""; const r = txt.slice(i + nom.length + 3); const j = r.search(/\n#[A-Z]+\n/); return j < 0 ? r : r.slice(0, j); };
+  const atelierDe = titre => { const t = (titre || "").toLowerCase();
+    if (t.includes("latte") || t.includes("motif")) return "latte";
+    if (t.includes("gust") || t.includes("aveugle") || t.includes("café") || t.includes("cafe")) return "degustation"; return null; };
 
   // ---------- Parsing
   function parse(txt){
-    const [eabTxt, rest1 = ""] = txt.split("\n#BONS\n");
-    const [bonsTxt, rest2 = ""] = rest1.split("\n#FERMES\n");
-    const [rest3, journalTxt = ""] = rest2.split("\n#JOURNAL\n");
-    const [fermesTxt, closedTxt = ""] = rest3.split("\n#FERMEES\n");
-    const closed = new Set((closedTxt.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\]/g) || []).map(t => t.slice(1, -1)));
-    const sessions = {};   // clé atelier/date/heure
-    const S = (a, d, h) => { const k = `${a}/${d}/${h}`; return sessions[k] = sessions[k] || { atelier:a, date:d, heure:h, site:[], bons:{}, nSite:0, nBons:0 }; };
-    eabTxt.split("\n").forEach(l => {
+    const S = {}; // clé atelier/date
+    const get = (a, d) => S[`${a}/${d}`] = S[`${a}/${d}`] || { atelier:a, date:d, heure:CONFIG.ATELIERS[a].debut, site:[], bons:{}, wec:[], nSite:0, nBons:0, nWec:0 };
+    // Easy Appointment Booking (site)
+    txt.slice(0, txt.indexOf("\n#BONS\n") < 0 ? txt.length : txt.indexOf("\n#BONS\n")).split("\n").forEach(l => {
       const [cmd, titre, dateEn, heure, qte, nom, email, tel] = l.split("|");
       if (!titre || !dateEn) return;
-      const a = KEYS.find(k => titre.toLowerCase().includes(CONFIG.ATELIERS[k].cle));
-      const m = dateEn.trim().match(/^\w+,\s+(\w+)\s+(\d+)\w*\s+(\d{4})$/);
+      const a = atelierDe(titre), m = dateEn.trim().match(/^\w+,\s+(\w+)\s+(\d+)\w*\s+(\d{4})$/);
       if (!a || !m || !(m[1].toLowerCase() in MOIS_EN)) return;
-      const s = S(a, iso(new Date(+m[3], MOIS_EN[m[1].toLowerCase()], +m[2])), (heure||"").trim());
+      const s = get(a, iso(new Date(+m[3], MOIS_EN[m[1].toLowerCase()], +m[2])));
       const n = parseInt(qte,10) || 0; s.nSite += n; s.site.push({ cmd, n, nom, email, tel });
     });
-    (bonsTxt.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\/(\d+)\]/g) || []).forEach(t => {
-      const [, a, d, h, num] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\/(\d+)\]/);
-      const s = S(a, d, h); s.nBons++; s.bons[num] = (s.bons[num] || 0) + 1;
+    // Bons cadeaux
+    (section(txt, "BONS").match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\/(\d+)\]/g) || []).forEach(t => {
+      const [, a, d, , num] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)\/(\d+)\]/);
+      if (!CONFIG.ATELIERS[a]) return; const s = get(a, d); s.nBons++; s.bons[num] = (s.bons[num] || 0) + 1;
+    });
+    // Wecandoo (agenda Google)
+    let wec = []; try { wec = JSON.parse(section(txt, "WECANDOO") || "[]") || []; } catch(e) { wec = []; }
+    st.wecOk = section(txt, "WECANDOO").trim().startsWith("[");
+    wec.forEach(e => {
+      if (!e || e.status === "cancelled" || !e.start) return;
+      const a = atelierDe(e.summary); const dt = e.start.dateTime || e.start.date; if (!a || !dt) return;
+      const d = dt.slice(0, 10); const s = get(a, d);
+      const lignes = (e.description || "").replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, " ").split("\n");
+      let nDet = 0;
+      lignes.forEach(l => { const m = l.trim().match(/^(\d+)\s+places?\s+-\s+(.*)$/i); if (!m) return;
+        const f = m[2].replace(/\s+-\s*$/, "").split(/\s+-\s+/).map(x => x.trim()); const n = +m[1]; nDet += n;
+        s.wec.push({ n, nom:f[0] || "", tel:(f[1] && f[1] !== "Non précisé") ? f[1] : "", email:(f[2] || "").includes("@") ? f[2] : "" }); });
+      const ms = (e.summary || "").match(/(\d+)\s+participant/);
+      const nTot = ms ? +ms[1] : nDet;
+      if (nTot > nDet) s.wec.push({ n:nTot - nDet, nom:"(détail indisponible)" });
+      s.nWec += Math.max(nTot, nDet);
     });
     const fermes = {};
-    (fermesTxt.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)=(\d+)\]/g) || []).forEach(t => {
-      const [, a, d, h, n] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)=(\d+)\]/); fermes[`${a}/${d}/${h}`] = +n;
-    });
+    (section(txt, "FERMES").match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)=(\d+)\]/g) || []).forEach(t => {
+      const [, a, d, , n] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)=(\d+)\]/); fermes[`${a}/${d}`] = +n; });
+    const closed = new Set((section(txt, "FERMEES").match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\]/g) || []).map(t => t.slice(1, -1)));
+    const form = {};
+    (section(txt, "FORMATEURS").match(/\[(\w+)\/(\d{4}-\d\d-\d\d)=([^\]]*)\]/g) || []).forEach(t => {
+      const [, a, d, nom] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)=([^\]]*)\]/); if (nom) form[`${a}/${d}`] = nom; });
     const contacts = {}, journal = [];
-    journalTxt.split("\n").forEach(l => {
+    section(txt, "JOURNAL").split("\n").forEach(l => {
       const f = l.split(";"); if (!["RESA","ANNUL","REPORT"].includes(f[0])) return;
-      journal.push(f);
-      if (f[0] === "RESA") contacts[f[2].replace("#","")] = { nom:f[7], email:f[8], tel:f[9] };
+      journal.push(f); if (f[0] === "RESA") contacts[f[2].replace("#","")] = { nom:f[7], email:f[8], tel:f[9] };
     });
-    return { sessions, fermes, contacts, journal, closed };
+    Object.values(S).forEach(s => { s.nShop = s.nSite + s.nBons; s.total = s.nShop + s.nWec; });
+    return { S, fermes, closed, form, contacts, journal };
+  }
+  // Sessions théoriques (sam./dim.) entre deux dates, fusionnées avec les sessions réelles
+  function sessionsEntre(debut, fin){
+    const out = [], d = new Date(debut);
+    for (; d <= fin; d.setDate(d.getDate()+1)) KEYS.forEach(a => {
+      const k = `${a}/${iso(d)}`, s = st.data.S[k];
+      if (CONFIG.ATELIERS[a].jours.includes(d.getDay()) || s) out.push(s || { atelier:a, date:iso(d), heure:CONFIG.ATELIERS[a].debut, site:[], bons:{}, wec:[], nSite:0, nBons:0, nWec:0, nShop:0, total:0 });
+    });
+    return out.sort((x,y) => (x.date + CONFIG.ATELIERS[x.atelier].debut).localeCompare(y.date + CONFIG.ATELIERS[y.atelier].debut));
   }
 
-  // ---------- Rendu
-  function render(){
-    const { sessions, fermes, contacts, journal, closed } = st.data;
-    const today = iso(new Date());
-    const futur = Object.values(sessions).filter(s => s.date >= today).sort((a,b) => (a.date+a.heure).localeCompare(b.date+b.heure));
-
-    // À faire EAB
-    const taches = [];
-    const keysF = new Set([...futur.filter(s => s.nBons > 0).map(s => `${s.atelier}/${s.date}/${s.heure}`),
+  // ---------- ACCUEIL
+  function renderAccueil(){
+    const { S, fermes, closed, form, journal } = st.data, today = iso(new Date());
+    const urg = [];
+    // 1. EAB : places prises par les bons à retirer / remettre
+    const keysF = new Set([...Object.values(S).filter(s => s.date >= today && s.nBons > 0).map(s => `${s.atelier}/${s.date}`),
                            ...Object.keys(fermes).filter(k => k.split("/")[1] >= today)]);
     keysF.forEach(k => {
-      const s = sessions[k] || (() => { const [a,d,h] = k.split("/"); return { atelier:a, date:d, heure:h, nSite:0, nBons:0 }; })();
-      const deja = fermes[k] || 0, total = s.nSite + s.nBons;
-      taches.push({ k, s, deja, total, ok: deja === s.nBons });
+      const [a, d] = k.split("/"), s = S[k] || { atelier:a, date:d, nBons:0, nSite:0, nWec:0, total:0 }, deja = fermes[k] || 0;
+      if (deja === s.nBons) return;
+      const diff = s.nBons - deja;
+      urg.push({ date:d, type:"eab", html:`<b>${dLong(d)} · ${NOMS[a]}</b><small>${s.nSite} site + ${s.nBons} bon(s) = ${s.nSite + s.nBons}/${CAP[a].shopify} places Shopify</small>
+        <span class="act">${diff > 0 ? `Retirer ${pl(diff)} dans Easy Appointment Booking` + (s.nSite + s.nBons >= CAP[a].shopify ? " · fermer le créneau" : "") : `Remettre ${pl(-diff)} en vente dans Easy Appointment Booking`}</span>`,
+        btn:`<button class="btn" data-k="${k}" data-from="${deja}" data-to="${s.nBons}">C'est fait</button>` });
     });
-    taches.sort((a,b) => (a.ok - b.ok) || a.s.date.localeCompare(b.s.date));
-    const aFaire = taches.filter(t => !t.ok).length;
-    $("#nTodo").textContent = aFaire; $("#nTodo").classList.toggle("zero", !aFaire);
-    $("#todo").innerHTML = taches.length ? taches.map(t => {
-      const a = CONFIG.ATELIERS[t.s.atelier], diff = t.s.nBons - t.deja;
-      let act;
-      if (t.ok) act = t.s.nBons ? `Fait : ${pl(t.s.nBons)} retirée${t.s.nBons>1?"s":""} dans EAB` : "Rien à faire";
-      else if (diff > 0) act = `Retirer ${pl(diff)} dans EAB` + (t.total >= CONFIG.CAPACITE ? " · session complète, fermer le créneau" : "");
-      else act = `Remettre ${pl(-diff)} en vente dans EAB (annulation d'un bon)`;
-      return `<div class="task${t.ok ? " done" : ""}"><div><b>${dLong(t.s.date)} · ${t.s.heure.replace(":","h")}</b>
-        <small>${a ? a.nom : t.s.atelier} · ${t.s.nSite} sur le site + ${t.s.nBons} par bon = ${t.total}/${CONFIG.CAPACITE}</small>
-        <span class="act">${act}</span></div>
-        ${t.ok ? (t.s.nBons ? `<button class="btn ghost" data-k="${t.k}" data-from="${t.deja}" data-to="0">Annuler « fait »</button>` : "")
-               : `<button class="btn" data-k="${t.k}" data-from="${t.deja}" data-to="${t.s.nBons}">C'est fait</button>`}</div>`;
-    }).join("") : `<p class="empty">Rien à faire : aucune réservation par bon cadeau à venir.</p>`;
+    // 2. Sessions au-dessus de la capacité
+    Object.values(S).filter(s => s.date >= today).forEach(s => {
+      const c = CAP[s.atelier];
+      if (s.total > c.total) urg.push({ date:s.date, type:"cap", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.nWec} Wecandoo + ${s.nShop} Shopify = ${s.total}</small><span class="act">Session en surréservation : ${s.total}/${c.total} places</span>` });
+      else if (s.nShop > c.shopify) urg.push({ date:s.date, type:"cap", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>Quota Shopify ${c.shopify}</small><span class="act">${s.nShop} places Shopify vendues pour ${c.shopify} prévues</span>` });
+    });
+    // 3. Sessions des 14 prochains jours avec inscrits mais sans formateur
+    const lim = iso(new Date(Date.now() + 14 * 864e5));
+    Object.values(S).filter(s => s.date >= today && s.date <= lim && s.total > 0 && !form[`${s.atelier}/${s.date}`]).forEach(s =>
+      urg.push({ date:s.date, type:"form", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.total} inscrit(s)</small><span class="act">Aucun formateur attribué</span>`, btn:`<button class="btn ghost" data-goto="formateurs" data-mois="${s.date.slice(0,7)}">Attribuer</button>` }));
+    urg.sort((a,b) => a.date.localeCompare(b.date));
+    $("#nTodo").textContent = urg.length; $("#nTodo").classList.toggle("zero", !urg.length);
+    $("#todo").innerHTML = urg.length ? urg.map(u => `<div class="task t-${u.type}"><div>${u.html}</div>${u.btn || ""}</div>`).join("")
+      : `<p class="empty">Rien d'urgent. 👌</p>`;
     $("#todo").querySelectorAll("[data-k]").forEach(b => b.onclick = () => marquer(b));
+    $("#todo").querySelectorAll("[data-goto]").forEach(b => b.onclick = () => { st.mois = b.dataset.mois; onglet("formateurs"); });
 
-    // Dates ouvertes aux bons cadeaux
-    renderDates(sessions, closed);
+    // Remplissage
+    const debut = new Date(); debut.setHours(0,0,0,0); const fin = new Date(debut); fin.setDate(fin.getDate() + st.periode);
+    const list = sessionsEntre(debut, fin).filter(s => !closed.has(`${s.atelier}/${s.date}`) || s.total > 0);
+    const bloc = (titre, ss) => {
+      const n = ss.length, w = ss.reduce((t,s) => t + s.nWec, 0), sh = ss.reduce((t,s) => t + s.nShop, 0);
+      const capW = ss.reduce((t,s) => t + CAP[s.atelier].wecandoo, 0), capS = ss.reduce((t,s) => t + CAP[s.atelier].shopify, 0), capT = ss.reduce((t,s) => t + CAP[s.atelier].total, 0);
+      const bar = (lib, v, c, cls) => `<div class="rrow"><span>${lib}</span><div class="rbar"><i class="${cls}" style="width:${Math.min(100, pct(v,c))}%"></i></div><b>${pct(v,c)} %</b><small>${v}/${c}</small></div>`;
+      return `<div class="card"><p class="rt">${titre} <small>${n} session(s)</small></p>
+        ${bar("Wecandoo", w, capW, "c-wec")}${bar("Shopify (site + bons)", sh, capS, "c-shop")}${bar("Total", w + sh, capT, "c-tot")}</div>`;
+    };
+    $("#remplissage").innerHTML = (!st.wecOk ? `<p class="muted" style="grid-column:1/-1">⚠️ Agenda Wecandoo non lu : les chiffres Wecandoo sont à 0 tant que la connexion Google Agenda n'est pas faite.</p>` : "")
+      + bloc("Latte art", list.filter(s => s.atelier === "latte")) + bloc("Dégustation", list.filter(s => s.atelier === "degustation")) + bloc("Tous les ateliers", list);
 
-    // Planning
-    const list = futur.filter(s => (s.nSite + s.nBons) > 0 && (st.filtre === "tous" || s.atelier === st.filtre));
-    $("#planning").innerHTML = list.length ? list.map(s => {
-      const a = CONFIG.ATELIERS[s.atelier], total = s.nSite + s.nBons;
-      const rows = [
-        ...s.site.map(r => `<tr><td><span class="src site">Site</span></td><td>${esc(r.nom)}</td><td>${r.n}</td>
-           <td>${r.tel ? `<a href="tel:${esc(r.tel)}">${esc(r.tel)}</a>` : ""}</td><td class="hide-m">${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ""}</td><td class="hide-m">${esc(r.cmd)}</td></tr>`),
-        ...Object.entries(s.bons).map(([num, n]) => { const c = contacts[num] || {};
-          return `<tr><td><span class="src bon">Bon</span></td><td>${esc(c.nom || "?")}</td><td>${n}</td>
-           <td>${c.tel ? `<a href="tel:${esc(c.tel)}">${esc(c.tel)}</a>` : ""}</td><td class="hide-m">${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ""}</td><td class="hide-m">#${esc(num)}</td></tr>`; })
-      ].join("");
-      return `<div class="card day"><div class="day-h"><b>${dLong(s.date)} · ${s.heure.replace(":","h")} · ${NOMS[s.atelier] || s.atelier}</b>
-        <span class="pill${total >= CONFIG.CAPACITE ? " full" : ""}">${total}/${CONFIG.CAPACITE}${total >= CONFIG.CAPACITE ? " · complet" : ""}</span></div>
-        <table><thead><tr><th>Source</th><th>Nom</th><th>Pl.</th><th>Téléphone</th><th class="hide-m">E-mail</th><th class="hide-m">Commande</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-    }).join("") : `<p class="empty">Aucune réservation à venir.</p>`;
-
-    // Journal
     const lib = { RESA:"Réservation", ANNUL:"Annulation", REPORT:"Déplacement" };
-    $("#journal").innerHTML = journal.length ? journal.slice(-20).reverse().map(f => {
-      const a = CONFIG.ATELIERS[f[3]], at = NOMS[f[3]] || f[3];
-      let txt = `<b>${lib[f[0]]}</b> · bon ${esc(f[2])} · ${at} ${dShort(f[4])} ${f[5].replace(":","h")}`;
+    $("#journal").innerHTML = journal.length ? journal.slice(-15).reverse().map(f => {
+      let txt = `<b>${lib[f[0]]}</b> · bon ${esc(f[2])} · ${NOMS[f[3]] || esc(f[3])} ${dShort(f[4])}`;
       if (f[0] === "RESA") txt += ` · ${pl(+f[6])} · ${esc(f[7])}`;
       if (f[0] === "ANNUL") txt += ` · ${pl(+f[6])} recréditée${+f[6]>1?"s":""}`;
       if (f[0] === "REPORT") txt += ` → ${dShort(f[7])}`;
@@ -697,23 +778,22 @@ body:not(.is-admin) #admin{display:none}
     }).join("") : `<li class="empty">Aucune action pour l'instant.</li>`;
   }
 
-  function renderDates(sessions, closed){
-    const out = [];
+  // ---------- CALENDRIER CADEAUX
+  function renderCadeaux(){
+    const { S, closed } = st.data, out = [];
     KEYS.forEach(k => {
       if (st.datesAt && st.datesAt !== k) return;
-      const a = CONFIG.ATELIERS[k];
-      const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + 1);
+      const a = CONFIG.ATELIERS[k], d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + 1);
       let mois = "", html = "";
       for (let i = 0; i < CONFIG.HORIZON_JOURS; i++, d.setDate(d.getDate()+1)) {
         if (!a.jours.includes(d.getDay())) continue;
-        const di = iso(d), key = `${k}/${di}`, s = sessions[`${k}/${di}/${a.debut}`];
-        const pris = s ? s.nSite + s.nBons : 0, off = closed.has(key), plein = pris >= CONFIG.CAPACITE;
+        const di = iso(d), key = `${k}/${di}`, s = S[key], pris = s ? s.nShop : 0, off = closed.has(key), plein = pris >= CAP[k].shopify;
         const m = d.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
         if (m !== mois) { html += (mois ? "</div>" : "") + `<div class="dmois">${m}</div><div class="dgrid">`; mois = m; }
-        html += `<button type="button" class="dchip${off ? " off" : ""}${plein ? " plein" : ""}" data-a="${k}" data-d="${di}" title="${off ? "Fermée aux bons : cliquer pour ouvrir" : "Ouverte aux bons : cliquer pour fermer"}">
-          <b>${d.toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}</b><small>${off ? "Fermée" : plein ? "Complet " + pris + "/" + CONFIG.CAPACITE : "Ouverte · " + pris + "/" + CONFIG.CAPACITE}</small></button>`;
+        html += `<button type="button" class="dchip${off ? " off" : ""}${plein ? " plein" : ""}" data-a="${k}" data-d="${di}">
+          <b>${d.toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}</b><small>${off ? "Fermée" : plein ? "Complet " + pris + "/" + CAP[k].shopify : "Ouverte · " + pris + "/" + CAP[k].shopify}</small></button>`;
       }
-      out.push(`<div class="card day"><div class="day-h"><b>${a.nom} · ${a.debut.replace(":","h")}</b></div>${html}</div></div>`);
+      out.push(`<div class="card day"><div class="day-h"><b>${NOMS[k]} · ${a.debut.replace(":","h")}</b></div>${html}</div></div>`);
     });
     $("#dates").innerHTML = out.join("");
     $("#dates").querySelectorAll(".dchip").forEach(b => b.onclick = async () => {
@@ -723,16 +803,86 @@ body:not(.is-admin) #admin{display:none}
     });
   }
 
+  // ---------- PLANNING
+  function renderPlanning(){
+    const { S, form, contacts } = st.data, today = iso(new Date());
+    const list = Object.values(S).filter(s => s.date >= today && s.total > 0 && (st.filtre === "tous" || s.atelier === st.filtre))
+      .sort((x,y) => (x.date + CONFIG.ATELIERS[x.atelier].debut).localeCompare(y.date + CONFIG.ATELIERS[y.atelier].debut));
+    const tel = t => t ? `<a href="tel:${esc(t)}">${esc(t)}</a>` : "";
+    const mail = m => m ? `<a href="mailto:${esc(m)}">${esc(m)}</a>` : "";
+    $("#planning").innerHTML = list.length ? list.map(s => {
+      const c = CAP[s.atelier], f = form[`${s.atelier}/${s.date}`];
+      const rows = [
+        ...s.wec.map(r => `<tr><td><span class="src wec">Wecandoo</span></td><td>${esc(r.nom)}</td><td>${r.n}</td><td>${tel(r.tel)}</td><td class="hide-m">${mail(r.email)}</td><td class="hide-m"></td></tr>`),
+        ...s.site.map(r => `<tr><td><span class="src site">Site</span></td><td>${esc(r.nom)}</td><td>${r.n}</td><td>${tel(r.tel)}</td><td class="hide-m">${mail(r.email)}</td><td class="hide-m">${esc(r.cmd)}</td></tr>`),
+        ...Object.entries(s.bons).map(([num, n]) => { const k = contacts[num] || {};
+          return `<tr><td><span class="src bon">Bon</span></td><td>${esc(k.nom || "?")}</td><td>${n}</td><td>${tel(k.tel)}</td><td class="hide-m">${mail(k.email)}</td><td class="hide-m">#${esc(num)}</td></tr>`; })
+      ].join("");
+      return `<div class="card day"><div class="day-h"><b>${dLong(s.date)} · ${CONFIG.ATELIERS[s.atelier].debut.replace(":","h")} · ${NOMS[s.atelier]}</b>
+        <span class="pill${s.total >= c.total ? " full" : ""}">${s.total}/${c.total}</span></div>
+        <p class="muted" style="margin:0 0 8px">Wecandoo ${s.nWec}/${c.wecandoo} · Shopify ${s.nShop}/${c.shopify} · Formateur : <b>${f ? esc(f) : "à attribuer"}</b></p>
+        <table><thead><tr><th>Source</th><th>Nom</th><th>Pl.</th><th>Téléphone</th><th class="hide-m">E-mail</th><th class="hide-m">Commande</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }).join("") : `<p class="empty">Aucune réservation à venir.</p>`;
+  }
+
+  // ---------- FORMATEURS
+  function renderFormateurs(){
+    const { form } = st.data;
+    if (!st.mois) st.mois = iso(new Date()).slice(0, 7);
+    const [y, m] = st.mois.split("-").map(Number);
+    const debut = new Date(y, m - 1, 1), fin = new Date(y, m, 0);
+    $("#moisLabel").textContent = debut.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+    const noms = [...new Set(Object.values(form))].sort((a,b) => a.localeCompare(b, "fr"));
+    $("#nomsFormateurs").innerHTML = noms.map(n => `<option value="${esc(n)}">`).join("");
+    const list = sessionsEntre(debut, fin);
+    // décompte du mois
+    const cpt = {};
+    list.forEach(s => { const f = form[`${s.atelier}/${s.date}`]; if (f) { cpt[f] = cpt[f] || { total:0, latte:0, degustation:0 }; cpt[f].total++; cpt[f][s.atelier]++; } });
+    const rows = Object.entries(cpt).sort((a,b) => b[1].total - a[1].total);
+    $("#decompte").innerHTML = rows.length ? `<table><thead><tr><th>Formateur</th><th>Ateliers</th><th>Latte art</th><th>Dégustation</th></tr></thead><tbody>${
+      rows.map(([n, c]) => `<tr><td><b>${esc(n)}</b></td><td><b>${c.total}</b></td><td>${c.latte}</td><td>${c.degustation}</td></tr>`).join("")}</tbody></table>`
+      : `<p class="empty">Aucun formateur attribué ce mois-ci.</p>`;
+    // attribution
+    $("#assign").innerHTML = `<table class="assign"><thead><tr><th>Session</th><th>Inscrits</th><th>Formateur</th></tr></thead><tbody>${
+      list.map(s => { const k = `${s.atelier}/${s.date}`, f = form[k] || "";
+        return `<tr><td><b>${dShort(s.date)}</b> · ${NOMS[s.atelier]} ${CONFIG.ATELIERS[s.atelier].debut.replace(":","h")}</td><td>${s.total}</td>
+          <td><input class="finput" list="nomsFormateurs" data-k="${k}" data-old="${esc(f)}" value="${esc(f)}" placeholder="Nom du formateur"><span class="fstate"></span></td></tr>`; }).join("")}</tbody></table>`;
+    $("#assign").querySelectorAll(".finput").forEach(inp => inp.onchange = async () => {
+      const [a, d] = inp.dataset.k.split("/"), nom = inp.value.replace(/[\[\]=|;]/g, "").trim(), etat = inp.nextElementSibling;
+      etat.textContent = "…";
+      try { await api({ action:"formateur", code:st.code, atelier:a, date:d, ancien:inp.dataset.old, nom });
+        st.data.form[inp.dataset.k] = nom; if (!nom) delete st.data.form[inp.dataset.k]; inp.dataset.old = nom; etat.textContent = "✓";
+        setTimeout(() => renderFormateurs(), 400); renderAccueil(); renderPlanning();
+      } catch(e) { etat.textContent = "Erreur"; }
+    });
+    // récap 6 mois (3 avant, mois courant, 2 après)
+    const moisListe = []; for (let i = -3; i <= 2; i++) { const dd = new Date(y, m - 1 + i, 1); moisListe.push(iso(dd).slice(0, 7)); }
+    const tous = {}; Object.entries(form).forEach(([k, n]) => { const mo = k.split("/")[1].slice(0, 7); tous[n] = tous[n] || {}; tous[n][mo] = (tous[n][mo] || 0) + 1; });
+    const ns = Object.keys(tous).sort((a,b) => a.localeCompare(b, "fr"));
+    $("#recap6").innerHTML = ns.length ? `<table><thead><tr><th>Formateur</th>${moisListe.map(mo => `<th>${fromIso(mo + "-01").toLocaleDateString("fr-FR",{month:"short",year:"2-digit"})}</th>`).join("")}</tr></thead><tbody>${
+      ns.map(n => `<tr><td><b>${esc(n)}</b></td>${moisListe.map(mo => `<td>${tous[n][mo] || ""}</td>`).join("")}</tr>`).join("")}</tbody></table>`
+      : `<p class="empty">Le récapitulatif apparaîtra dès que des formateurs seront attribués.</p>`;
+  }
+  $("#moisPrev").onclick = () => { const [y,m] = st.mois.split("-").map(Number); st.mois = iso(new Date(y, m - 2, 1)).slice(0,7); renderFormateurs(); };
+  $("#moisNext").onclick = () => { const [y,m] = st.mois.split("-").map(Number); st.mois = iso(new Date(y, m, 1)).slice(0,7); renderFormateurs(); };
+
+  function render(){ renderAccueil(); renderCadeaux(); renderPlanning(); renderFormateurs(); }
+  function onglet(t){
+    document.querySelectorAll("#atabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.t === t));
+    document.querySelectorAll(".apane").forEach(p => p.hidden = p.id !== "p-" + t);
+    if (t === "formateurs" && st.data) renderFormateurs();
+  }
+  document.querySelectorAll("#atabs button").forEach(b => b.onclick = () => onglet(b.dataset.t));
+
   async function marquer(btn){
-    const [a, d, h] = btn.dataset.k.split("/"), from = +btn.dataset.from, to = +btn.dataset.to;
+    const [a, d] = btn.dataset.k.split("/"), h = CONFIG.ATELIERS[a].debut, from = +btn.dataset.from, to = +btn.dataset.to;
     btn.disabled = true; btn.textContent = "…";
     try {
-      if (from > 0) await api({ action:"fermer", code:st.code, atelier:a, date:d, heure:h, n:String(from) }); // retire l'ancien marquage
-      if (to > 0)   await api({ action:"fermer", code:st.code, atelier:a, date:d, heure:h, n:String(to) });   // pose le nouveau
+      if (from > 0) await api({ action:"fermer", code:st.code, atelier:a, date:d, heure:h, n:String(from) });
+      if (to > 0)   await api({ action:"fermer", code:st.code, atelier:a, date:d, heure:h, n:String(to) });
       await charger();
     } catch(e) { btn.disabled = false; btn.textContent = "Réessayer"; }
   }
-
   async function charger(){
     const txt = await api({ action:"equipe", code:st.code });
     st.data = parse(txt); render();
@@ -749,16 +899,13 @@ body:not(.is-admin) #admin{display:none}
       if (e.message === "code") store.set("");
     }
   }
-
   $("#fl").onsubmit = e => { e.preventDefault(); entrer($("#code").value.trim()); };
   $("#refresh").onclick = async () => { $("#refresh").disabled = true; try { await charger(); } catch(e){} $("#refresh").disabled = false; };
-  $("#logout").onclick = () => { store.set(""); st.code = ""; $("#code").value = ""; $("#login").hidden = false; $("#app").hidden = true; $("#refresh").hidden = true; $("#logout").hidden = true; };
-  $("#fDates").querySelectorAll("button").forEach(b => b.onclick = () => {
-    st.datesAt = b.dataset.f; $("#fDates").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); if (st.data) render();
-  });
-  $("#filtre").querySelectorAll("button").forEach(b => b.onclick = () => {
-    st.filtre = b.dataset.f; $("#filtre").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); render();
-  });
+  $("#logout").onclick = () => { store.set(""); st.code = ""; st.data = null; $("#code").value = ""; $("#login").hidden = false; $("#app").hidden = true; $("#refresh").hidden = true; $("#logout").hidden = true; };
+  const radio = (sel, cb) => $(sel).querySelectorAll("button").forEach(b => b.onclick = () => { $(sel).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); cb(b); });
+  radio("#fDates", b => { st.datesAt = b.dataset.f; if (st.data) renderCadeaux(); });
+  radio("#filtre", b => { st.filtre = b.dataset.f; if (st.data) renderPlanning(); });
+  radio("#fPeriode", b => { st.periode = +b.dataset.j; if (st.data) renderAccueil(); });
   const ouvrir = () => { document.body.classList.add("is-admin"); window.scrollTo(0,0); if (!st.data) { const saved = store.get(); if (saved) entrer(saved); else $("#code").focus(); } };
   const fermer = () => { document.body.classList.remove("is-admin"); history.replaceState(null, "", location.pathname); };
   $("#adminBtn").onclick = () => { history.replaceState(null, "", "#admin"); ouvrir(); };
