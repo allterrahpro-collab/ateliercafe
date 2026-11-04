@@ -180,6 +180,11 @@ body:not(.is-admin) #admin{display:none}
 #admin .src.wec{background:#fbe9d2;color:#9a5a12}
 #admin .task.t-cap{border-left-color:#b3261e}#admin .task.t-form{border-left-color:#e3a35b}#admin .task.t-risk{border-left-color:#b3261e;background:#fdf1ee}
 #admin .pill.risk{background:#b3261e;color:#fff;margin-left:6px}
+#admin .task.t-closed{border-left-color:#4a5a5a;background:#f1f1ef}
+#admin .bclose{margin-left:10px;padding:4px 12px;font-size:12px}
+#admin .fclose{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+#admin .fclose b{color:var(--teal);width:100%}
+#admin .fclose select,#admin .fclose input{width:auto;padding:8px 10px;font-size:14px}
 #admin .task small{display:block;color:var(--muted)}#admin .task .act{display:block}
 #admin .mois-nav{display:flex;align-items:center;gap:14px;margin:16px 0 0}
 #admin .mois-nav b{color:var(--teal);font-size:18px;text-transform:capitalize;min-width:160px;text-align:center}
@@ -346,6 +351,9 @@ body:not(.is-admin) #admin{display:none}
         <button type="button" data-f="latte" aria-pressed="false">Latte art</button>
         <button type="button" data-f="degustation" aria-pressed="false">Dégustation</button>
       </div>
+      <form class="card fclose" id="fcForm"><b>Fermer une session sur tous les canaux</b>
+        <select id="fcAt"><option value="latte">Latte art</option><option value="degustation">Dégustation</option></select>
+        <input type="date" id="fcDate" required><button class="btn" id="fcBtn" type="submit">Fermer / rouvrir</button></form>
       <div id="planning" style="margin-top:12px"></div>
     </div>
 
@@ -707,6 +715,12 @@ body:not(.is-admin) #admin{display:none}
     const fermes = {};
     (section(txt, "FERMES").match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)=(\d+)\]/g) || []).forEach(t => {
       const [, a, d, , n] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/(\d\d:\d\d)=(\d+)\]/); fermes[`${a}/${d}`] = +n; });
+    // Sessions fermées sur tous les canaux : [a/d/TOUS=0] (+ étapes faites : =wec, =eab, =inscrits)
+    const tous = {};
+    (section(txt, "FERMES").match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/TOUS=(\w+)\]/g) || []).forEach(t => {
+      const [, a, d, x] = t.match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\/TOUS=(\w+)\]/); const k = `${a}/${d}`;
+      tous[k] = tous[k] || { ferme:false, wec:false, eab:false, inscrits:false }; if (x === "0") tous[k].ferme = true; else tous[k][x] = true; });
+    Object.keys(tous).forEach(k => { if (!tous[k].ferme) delete tous[k]; });
     const closed = new Set((section(txt, "FERMEES").match(/\[(\w+)\/(\d{4}-\d\d-\d\d)\]/g) || []).map(t => t.slice(1, -1)));
     const form = {};
     (section(txt, "FORMATEURS").match(/\[(\w+)\/(\d{4}-\d\d-\d\d)=([^\]]*)\]/g) || []).forEach(t => {
@@ -717,7 +731,7 @@ body:not(.is-admin) #admin{display:none}
       journal.push(f); if (f[0] === "RESA") contacts[f[2].replace("#","")] = { nom:f[7], email:f[8], tel:f[9] };
     });
     Object.values(S).forEach(s => { s.nShop = s.nSite + s.nBons; s.total = s.nShop + s.nWec; });
-    return { S, fermes, closed, form, contacts, journal };
+    return { S, fermes, closed, form, contacts, journal, tous };
   }
   // Sessions théoriques (sam./dim.) entre deux dates, fusionnées avec les sessions réelles
   function sessionsEntre(debut, fin){
@@ -731,42 +745,53 @@ body:not(.is-admin) #admin{display:none}
 
   // ---------- ACCUEIL
   function renderAccueil(){
-    const { S, fermes, closed, form, journal } = st.data, today = iso(new Date());
-    const urg = [];
+    const { S, fermes, closed, form, journal, tous } = st.data, today = iso(new Date());
+    const urg = [], ferm = s => !!tous[`${s.atelier}/${s.date}`];
+    // 0. Sessions fermées sur tous les canaux : étapes à faire
+    Object.entries(tous).filter(([k]) => k.split("/")[1] >= today).forEach(([k, t]) => {
+      const [a, d] = k.split("/"), s = S[k] || { nWec:0, nSite:0, nBons:0, total:0 };
+      const etapes = [];
+      if (!t.wec) etapes.push(["wec", "Fermer la session sur Wecandoo"]);
+      if (!t.eab) etapes.push(["eab", "Fermer le créneau dans Easy Appointment Booking"]);
+      if (s.total > 0 && !t.inscrits) etapes.push(["inscrits", `Prévenir les ${s.total} inscrit(s) (${s.nWec} Wecandoo, ${s.nSite} site, ${s.nBons} bon(s)) et les replacer`]);
+      etapes.forEach(([x, txt]) => urg.push({ date:d, type:"closed", html:`<b>${dLong(d)} · ${NOMS[a]}</b><small>Session fermée sur tous les canaux</small><span class="act">${txt}</span>`,
+        btn:`<button class="btn" data-tous="${k}" data-x="${x}">C'est fait</button>` }));
+    });
     // 1. EAB : places prises par les bons à retirer / remettre
     const keysF = new Set([...Object.values(S).filter(s => s.date >= today && s.nBons > 0).map(s => `${s.atelier}/${s.date}`),
                            ...Object.keys(fermes).filter(k => k.split("/")[1] >= today)]);
     keysF.forEach(k => {
       const [a, d] = k.split("/"), s = S[k] || { atelier:a, date:d, nBons:0, nSite:0, nWec:0, total:0 }, deja = fermes[k] || 0;
-      if (deja === s.nBons) return;
+      if (deja === s.nBons || tous[k]) return;
       const diff = s.nBons - deja;
       urg.push({ date:d, type:"eab", html:`<b>${dLong(d)} · ${NOMS[a]}</b><small>${s.nSite} site + ${s.nBons} bon(s) = ${s.nSite + s.nBons}/${CAP[a].shopify} places Shopify</small>
         <span class="act">${diff > 0 ? `Retirer ${pl(diff)} dans Easy Appointment Booking` + (s.nSite + s.nBons >= CAP[a].shopify ? " · fermer le créneau" : "") : `Remettre ${pl(-diff)} en vente dans Easy Appointment Booking`}</span>`,
         btn:`<button class="btn" data-k="${k}" data-from="${deja}" data-to="${s.nBons}">C'est fait</button>` });
     });
     // 2. Sessions au-dessus de la capacité
-    Object.values(S).filter(s => s.date >= today).forEach(s => {
+    Object.values(S).filter(s => s.date >= today && !ferm(s)).forEach(s => {
       const c = CAP[s.atelier];
       if (s.total > c.total) urg.push({ date:s.date, type:"cap", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.nWec} Wecandoo + ${s.nShop} Shopify = ${s.total}</small><span class="act">Session en surréservation : ${s.total}/${c.total} places</span>` });
       else if (s.nShop > c.shopify) urg.push({ date:s.date, type:"cap", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>Quota Shopify ${c.shopify}</small><span class="act">${s.nShop} places Shopify vendues pour ${c.shopify} prévues</span>` });
     });
     // 3. Ateliers des 3 prochaines semaines à risque d'annulation / à regarder
-    Object.values(S).filter(s => risque(s) && !closed.has(`${s.atelier}/${s.date}`)).forEach(s =>
+    Object.values(S).filter(s => risque(s) && !ferm(s) && !closed.has(`${s.atelier}/${s.date}`)).forEach(s =>
       urg.push({ date:s.date, type:"risk", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.nWec} Wecandoo + ${s.nSite} site + ${s.nBons} bon(s) = ${s.total}/${CAP[s.atelier].total}</small><span class="act">⚠️ Risque d'annulation / à regarder : ${raisons(s)}</span>`, btn:`<button class="btn ghost" data-goto="planning">Voir</button>` }));
     // 4. Sessions des 14 prochains jours avec inscrits mais sans formateur
     const lim = iso(new Date(Date.now() + 14 * 864e5));
-    Object.values(S).filter(s => s.date >= today && s.date <= lim && s.total > 0 && !form[`${s.atelier}/${s.date}`]).forEach(s =>
+    Object.values(S).filter(s => s.date >= today && s.date <= lim && s.total > 0 && !ferm(s) && !form[`${s.atelier}/${s.date}`]).forEach(s =>
       urg.push({ date:s.date, type:"form", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.total} inscrit(s)</small><span class="act">Aucun formateur attribué</span>`, btn:`<button class="btn ghost" data-goto="formateurs" data-mois="${s.date.slice(0,7)}">Attribuer</button>` }));
     urg.sort((a,b) => a.date.localeCompare(b.date));
     $("#nTodo").textContent = urg.length; $("#nTodo").classList.toggle("zero", !urg.length);
     $("#todo").innerHTML = urg.length ? urg.map(u => `<div class="task t-${u.type}"><div>${u.html}</div>${u.btn || ""}</div>`).join("")
       : `<p class="empty">Rien d'urgent. 👌</p>`;
     $("#todo").querySelectorAll("[data-k]").forEach(b => b.onclick = () => marquer(b));
+    $("#todo").querySelectorAll("[data-tous]").forEach(b => b.onclick = () => etape(b));
     $("#todo").querySelectorAll("[data-goto]").forEach(b => b.onclick = () => { if (b.dataset.mois) st.mois = b.dataset.mois; onglet(b.dataset.goto); });
 
     // Remplissage
     const debut = new Date(); debut.setHours(0,0,0,0); const fin = new Date(debut); fin.setDate(fin.getDate() + st.periode);
-    const list = sessionsEntre(debut, fin).filter(s => !closed.has(`${s.atelier}/${s.date}`) || s.total > 0);
+    const list = sessionsEntre(debut, fin).filter(s => !ferm(s) && (!closed.has(`${s.atelier}/${s.date}`) || s.total > 0));
     const bloc = (titre, ss) => {
       const n = ss.length, w = ss.reduce((t,s) => t + s.nWec, 0), sh = ss.reduce((t,s) => t + s.nShop, 0);
       const capW = ss.reduce((t,s) => t + CAP[s.atelier].wecandoo, 0), capS = ss.reduce((t,s) => t + CAP[s.atelier].shopify, 0), capT = ss.reduce((t,s) => t + CAP[s.atelier].total, 0);
@@ -796,11 +821,11 @@ body:not(.is-admin) #admin{display:none}
       let mois = "", html = "";
       for (let i = 0; i < CONFIG.HORIZON_JOURS; i++, d.setDate(d.getDate()+1)) {
         if (!a.jours.includes(d.getDay())) continue;
-        const di = iso(d), key = `${k}/${di}`, s = S[key], pris = s ? s.nShop : 0, off = closed.has(key), plein = pris >= CAP[k].shopify;
+        const di = iso(d), key = `${k}/${di}`, s = S[key], pris = s ? s.nShop : 0, off = closed.has(key) || !!st.data.tous[key], plein = pris >= CAP[k].shopify;
         const m = d.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
         if (m !== mois) { html += (mois ? "</div>" : "") + `<div class="dmois">${m}</div><div class="dgrid">`; mois = m; }
         html += `<button type="button" class="dchip${off ? " off" : ""}${plein ? " plein" : ""}" data-a="${k}" data-d="${di}">
-          <b>${d.toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}</b><small>${off ? "Fermée" : plein ? "Complet " + pris + "/" + CAP[k].shopify : "Ouverte · " + pris + "/" + CAP[k].shopify}</small></button>`;
+          <b>${d.toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}</b><small>${st.data.tous[key] ? "Fermée · tous canaux" : off ? "Fermée" : plein ? "Complet " + pris + "/" + CAP[k].shopify : "Ouverte · " + pris + "/" + CAP[k].shopify}</small></button>`;
       }
       out.push(`<div class="card day"><div class="day-h"><b>${NOMS[k]} · ${a.debut.replace(":","h")}</b></div>${html}</div></div>`);
     });
@@ -814,13 +839,14 @@ body:not(.is-admin) #admin{display:none}
 
   // ---------- PLANNING
   function renderPlanning(){
-    const { S, form, contacts } = st.data, today = iso(new Date());
-    const list = Object.values(S).filter(s => s.date >= today && (s.total > 0 || (s.wecEvt && s.date <= LIM_RISQUE())) && (st.filtre === "tous" || s.atelier === st.filtre))
+    const { S, form, contacts, tous } = st.data, today = iso(new Date());
+    const vides = Object.keys(tous).filter(k => !S[k]).map(k => { const [a, d] = k.split("/"); return { atelier:a, date:d, site:[], bons:{}, wec:[], nSite:0, nBons:0, nWec:0, nShop:0, total:0 }; });
+    const list = [...Object.values(S), ...vides].filter(s => s.date >= today && (s.total > 0 || tous[`${s.atelier}/${s.date}`] || (s.wecEvt && s.date <= LIM_RISQUE())) && (st.filtre === "tous" || s.atelier === st.filtre))
       .sort((x,y) => (x.date + CONFIG.ATELIERS[x.atelier].debut).localeCompare(y.date + CONFIG.ATELIERS[y.atelier].debut));
     const tel = t => t ? `<a href="tel:${esc(t)}">${esc(t)}</a>` : "";
     const mail = m => m ? `<a href="mailto:${esc(m)}">${esc(m)}</a>` : "";
     $("#planning").innerHTML = list.length ? list.map(s => {
-      const c = CAP[s.atelier], f = form[`${s.atelier}/${s.date}`];
+      const c = CAP[s.atelier], f = form[`${s.atelier}/${s.date}`], k = `${s.atelier}/${s.date}`, fe = tous[k];
       const rows = [
         ...s.wec.map(r => `<tr><td><span class="src wec">Wecandoo</span></td><td>${esc(r.nom)}</td><td>${r.n}</td><td>${tel(r.tel)}</td><td class="hide-m">${mail(r.email)}</td><td class="hide-m"></td></tr>`),
         ...s.site.map(r => `<tr><td><span class="src site">Site</span></td><td>${esc(r.nom)}</td><td>${r.n}</td><td>${tel(r.tel)}</td><td class="hide-m">${mail(r.email)}</td><td class="hide-m">${esc(r.cmd)}</td></tr>`),
@@ -828,10 +854,34 @@ body:not(.is-admin) #admin{display:none}
           return `<tr><td><span class="src bon">Bon</span></td><td>${esc(k.nom || "?")}</td><td>${n}</td><td>${tel(k.tel)}</td><td class="hide-m">${mail(k.email)}</td><td class="hide-m">#${esc(num)}</td></tr>`; })
       ].join("");
       return `<div class="card day"><div class="day-h"><b>${dLong(s.date)} · ${CONFIG.ATELIERS[s.atelier].debut.replace(":","h")} · ${NOMS[s.atelier]}</b>
-        <span><span class="pill${s.total >= c.total ? " full" : ""}">${s.total}/${c.total}</span>${risque(s) ? `<span class="pill risk" title="${raisons(s)}">À risque</span>` : ""}</span></div>
-        <p class="muted" style="margin:0 0 8px">Wecandoo ${s.nWec}/${c.wecandoo} · Shopify ${s.nShop}/${c.shopify} · Formateur : <b>${f ? esc(f) : "à attribuer"}</b></p>
-        <table><thead><tr><th>Source</th><th>Nom</th><th>Pl.</th><th>Téléphone</th><th class="hide-m">E-mail</th><th class="hide-m">Commande</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        <span><span class="pill${s.total >= c.total ? " full" : ""}">${s.total}/${c.total}</span>${fe ? `<span class="pill risk">Fermée · tous canaux</span>` : risque(s) ? `<span class="pill risk" title="${raisons(s)}">À risque</span>` : ""}</span></div>
+        <p class="muted" style="margin:0 0 8px">Wecandoo ${s.nWec}/${c.wecandoo} · Shopify ${s.nShop}/${c.shopify} · Formateur : <b>${f ? esc(f) : "à attribuer"}</b>
+          <button type="button" class="btn ghost bclose" data-close="${k}" data-on="${fe ? 1 : 0}">${fe ? "Rouvrir la session" : "Fermer sur tous les canaux"}</button></p>
+        ${rows ? `<table><thead><tr><th>Source</th><th>Nom</th><th>Pl.</th><th>Téléphone</th><th class="hide-m">E-mail</th><th class="hide-m">Commande</th></tr></thead><tbody>${rows}</tbody></table>` : `<p class="muted">Aucun inscrit.</p>`}</div>`;
     }).join("") : `<p class="empty">Aucune réservation à venir.</p>`;
+    $("#planning").querySelectorAll("[data-close]").forEach(b => b.onclick = () => basculer(b.dataset.close, b.dataset.on === "1", b));
+  }
+  $("#fcForm").onsubmit = e => { e.preventDefault(); const d = $("#fcDate").value; if (!d) return;
+    basculer(`${$("#fcAt").value}/${d}`, !!(st.data && st.data.tous[`${$("#fcAt").value}/${d}`]), $("#fcBtn")); };
+
+  // Fermer / rouvrir une session sur tous les canaux
+  async function basculer(k, ouverte, btn){
+    const [a, d] = k.split("/"), t = st.data.tous[k] || {};
+    if (!ouverte && !confirm(`Fermer l'atelier ${NOMS[a]} du ${dLong(d)} sur tous les canaux ?\n\nIl ne sera plus réservable avec un bon cadeau. Tu auras ensuite à le fermer sur Wecandoo et dans Easy Appointment Booking (rappel dans l'Accueil).`)) return;
+    if (ouverte && !confirm(`Rouvrir l'atelier ${NOMS[a]} du ${dLong(d)} ? Pense à le rouvrir aussi sur Wecandoo et dans Easy Appointment Booking.`)) return;
+    const old = btn.textContent; btn.disabled = true; btn.textContent = "…";
+    const tok = x => api({ action:"fermer", code:st.code, atelier:a, date:d, heure:"TOUS", n:x });
+    try {
+      if (!ouverte) { await tok("0"); if (!st.data.closed.has(k)) await api({ action:"dates", code:st.code, atelier:a, date:d }); }
+      else { for (const x of ["wec","eab","inscrits"]) if (t[x]) await tok(x); await tok("0"); if (st.data.closed.has(k)) await api({ action:"dates", code:st.code, atelier:a, date:d }); }
+      await charger();
+    } catch(e) { btn.disabled = false; btn.textContent = old + " (erreur)"; return; }
+    btn.disabled = false; btn.textContent = old;
+  }
+  async function etape(btn){
+    const [a, d] = btn.dataset.tous.split("/"); btn.disabled = true; btn.textContent = "…";
+    try { await api({ action:"fermer", code:st.code, atelier:a, date:d, heure:"TOUS", n:btn.dataset.x }); await charger(); }
+    catch(e) { btn.disabled = false; btn.textContent = "Réessayer"; }
   }
 
   // ---------- FORMATEURS
