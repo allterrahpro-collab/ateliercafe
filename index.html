@@ -636,9 +636,13 @@ body:not(.is-admin) #admin{display:none}
   // Capacités par atelier : total de la session et quotas par plateforme
   const CAP = {
     latte:       { total: 8,  wecandoo: 6, shopify: 2 },
-    degustation: { total: 19, wecandoo: 8, shopify: 2 }
+    degustation: { total: 10, wecandoo: 8, shopify: 2 }
   };
-  const SEUIL_WEC = 4; // en dessous : atelier à risque d'annulation
+  const SEUIL_WEC = 4;   // moins de 4 inscrits Wecandoo : à risque
+  const SEUIL_TOTAL = 5; // moins de 5 inscrits au total (Wecandoo + site + bons) : à risque
+  const LIM_RISQUE = () => iso(new Date(Date.now() + 21 * 864e5));
+  const risque = s => (s.wecEvt || s.total > 0) && s.date >= iso(new Date()) && s.date <= LIM_RISQUE() && (s.nWec < SEUIL_WEC || s.total < SEUIL_TOTAL);
+  const raisons = s => [s.nWec < SEUIL_WEC ? `${s.nWec} inscrit(s) Wecandoo (moins de ${SEUIL_WEC})` : "", s.total < SEUIL_TOTAL ? `${s.total} inscrit(s) au total (moins de ${SEUIL_TOTAL})` : ""].filter(Boolean).join(" · ");
   const KEYS = Object.keys(CONFIG.ATELIERS);
   const NOMS = { latte:"Latte art", degustation:"Dégustation" };
   const MOIS_EN = {january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
@@ -746,10 +750,9 @@ body:not(.is-admin) #admin{display:none}
       if (s.total > c.total) urg.push({ date:s.date, type:"cap", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.nWec} Wecandoo + ${s.nShop} Shopify = ${s.total}</small><span class="act">Session en surréservation : ${s.total}/${c.total} places</span>` });
       else if (s.nShop > c.shopify) urg.push({ date:s.date, type:"cap", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>Quota Shopify ${c.shopify}</small><span class="act">${s.nShop} places Shopify vendues pour ${c.shopify} prévues</span>` });
     });
-    // 3. Ateliers des 3 prochaines semaines à risque d'annulation (moins de 4 inscrits Wecandoo)
-    const lim21 = iso(new Date(Date.now() + 21 * 864e5));
-    Object.values(S).filter(s => s.wecEvt && s.date >= today && s.date <= lim21 && s.nWec < SEUIL_WEC && !closed.has(`${s.atelier}/${s.date}`)).forEach(s =>
-      urg.push({ date:s.date, type:"risk", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.nWec} inscrit(s) Wecandoo${s.nShop ? ` + ${s.nShop} Shopify` : ""}</small><span class="act">⚠️ Risque d'annulation : moins de ${SEUIL_WEC} inscrits Wecandoo</span>`, btn:`<button class="btn ghost" data-goto="planning">Voir</button>` }));
+    // 3. Ateliers des 3 prochaines semaines à risque d'annulation / à regarder
+    Object.values(S).filter(s => risque(s) && !closed.has(`${s.atelier}/${s.date}`)).forEach(s =>
+      urg.push({ date:s.date, type:"risk", html:`<b>${dLong(s.date)} · ${NOMS[s.atelier]}</b><small>${s.nWec} Wecandoo + ${s.nSite} site + ${s.nBons} bon(s) = ${s.total}/${CAP[s.atelier].total}</small><span class="act">⚠️ Risque d'annulation / à regarder : ${raisons(s)}</span>`, btn:`<button class="btn ghost" data-goto="planning">Voir</button>` }));
     // 4. Sessions des 14 prochains jours avec inscrits mais sans formateur
     const lim = iso(new Date(Date.now() + 14 * 864e5));
     Object.values(S).filter(s => s.date >= today && s.date <= lim && s.total > 0 && !form[`${s.atelier}/${s.date}`]).forEach(s =>
@@ -812,7 +815,7 @@ body:not(.is-admin) #admin{display:none}
   // ---------- PLANNING
   function renderPlanning(){
     const { S, form, contacts } = st.data, today = iso(new Date());
-    const list = Object.values(S).filter(s => s.date >= today && (s.total > 0 || (s.wecEvt && s.date <= iso(new Date(Date.now() + 21 * 864e5)))) && (st.filtre === "tous" || s.atelier === st.filtre))
+    const list = Object.values(S).filter(s => s.date >= today && (s.total > 0 || (s.wecEvt && s.date <= LIM_RISQUE())) && (st.filtre === "tous" || s.atelier === st.filtre))
       .sort((x,y) => (x.date + CONFIG.ATELIERS[x.atelier].debut).localeCompare(y.date + CONFIG.ATELIERS[y.atelier].debut));
     const tel = t => t ? `<a href="tel:${esc(t)}">${esc(t)}</a>` : "";
     const mail = m => m ? `<a href="mailto:${esc(m)}">${esc(m)}</a>` : "";
@@ -825,7 +828,7 @@ body:not(.is-admin) #admin{display:none}
           return `<tr><td><span class="src bon">Bon</span></td><td>${esc(k.nom || "?")}</td><td>${n}</td><td>${tel(k.tel)}</td><td class="hide-m">${mail(k.email)}</td><td class="hide-m">#${esc(num)}</td></tr>`; })
       ].join("");
       return `<div class="card day"><div class="day-h"><b>${dLong(s.date)} · ${CONFIG.ATELIERS[s.atelier].debut.replace(":","h")} · ${NOMS[s.atelier]}</b>
-        <span><span class="pill${s.total >= c.total ? " full" : ""}">${s.total}/${c.total}</span>${s.wecEvt && s.nWec < SEUIL_WEC && s.date <= iso(new Date(Date.now() + 21 * 864e5)) ? `<span class="pill risk">À risque</span>` : ""}</span></div>
+        <span><span class="pill${s.total >= c.total ? " full" : ""}">${s.total}/${c.total}</span>${risque(s) ? `<span class="pill risk" title="${raisons(s)}">À risque</span>` : ""}</span></div>
         <p class="muted" style="margin:0 0 8px">Wecandoo ${s.nWec}/${c.wecandoo} · Shopify ${s.nShop}/${c.shopify} · Formateur : <b>${f ? esc(f) : "à attribuer"}</b></p>
         <table><thead><tr><th>Source</th><th>Nom</th><th>Pl.</th><th>Téléphone</th><th class="hide-m">E-mail</th><th class="hide-m">Commande</th></tr></thead><tbody>${rows}</tbody></table></div>`;
     }).join("") : `<p class="empty">Aucune réservation à venir.</p>`;
