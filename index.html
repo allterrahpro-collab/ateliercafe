@@ -192,6 +192,7 @@ body:not(.is-admin) #admin{display:none}
 #admin .finput{max-width:220px;padding:8px 10px;font-size:14px}
 #admin .fstate{margin-left:8px;color:#2e7d5b;font-weight:600}
 #admin table.assign td{vertical-align:middle}
+#admin table.assign tr.ferme td{text-decoration:line-through;color:var(--muted)}#admin table.assign tr.ferme .finput{text-decoration:line-through;opacity:.6}#admin .tag-ferme{display:inline-block;text-decoration:none;background:#b3261e;color:#fff;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;margin-left:6px}
 
 #admin .dmois{color:var(--teal);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px}
 #admin .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
@@ -899,7 +900,7 @@ body:not(.is-admin) #admin{display:none}
 
   // ---------- FORMATEURS
   function renderFormateurs(){
-    const { form } = st.data;
+    const { form } = st.data, fermee = k => !!st.data.tous[k];
     if (!st.mois) st.mois = iso(new Date()).slice(0, 7);
     const [y, m] = st.mois.split("-").map(Number);
     const debut = new Date(y, m - 1, 1), fin = new Date(y, m, 0);
@@ -909,15 +910,15 @@ body:not(.is-admin) #admin{display:none}
     const list = sessionsEntre(debut, fin);
     // décompte du mois
     const cpt = {};
-    list.forEach(s => { const f = form[`${s.atelier}/${s.date}`]; if (f) { cpt[f] = cpt[f] || { total:0, latte:0, degustation:0 }; cpt[f].total++; cpt[f][s.atelier]++; } });
+    list.forEach(s => { const f = form[`${s.atelier}/${s.date}`]; if (f && !fermee(`${s.atelier}/${s.date}`)) { cpt[f] = cpt[f] || { total:0, latte:0, degustation:0 }; cpt[f].total++; cpt[f][s.atelier]++; } });
     const rows = Object.entries(cpt).sort((a,b) => b[1].total - a[1].total);
     $("#decompte").innerHTML = rows.length ? `<table><thead><tr><th>Formateur</th><th>Ateliers</th><th>Latte art</th><th>Dégustation</th></tr></thead><tbody>${
       rows.map(([n, c]) => `<tr><td><b>${esc(n)}</b></td><td><b>${c.total}</b></td><td>${c.latte}</td><td>${c.degustation}</td></tr>`).join("")}</tbody></table>`
       : `<p class="empty">Aucun formateur attribué ce mois-ci.</p>`;
     // attribution
     $("#assign").innerHTML = `<table class="assign"><thead><tr><th>Session</th><th>Inscrits</th><th>Formateur</th></tr></thead><tbody>${
-      list.map(s => { const k = `${s.atelier}/${s.date}`, f = form[k] || "";
-        return `<tr><td><b>${dShort(s.date)}</b> · ${NOMS[s.atelier]} ${CONFIG.ATELIERS[s.atelier].debut.replace(":","h")}</td><td>${s.total}</td>
+      list.map(s => { const k = `${s.atelier}/${s.date}`, f = form[k] || "", fe = fermee(k);
+        return `<tr${fe ? ' class="ferme" title="Atelier fermé sur tous les canaux : non compté"' : ""}><td><b>${dShort(s.date)}</b> · ${NOMS[s.atelier]} ${CONFIG.ATELIERS[s.atelier].debut.replace(":","h")}${fe ? ' <span class="tag-ferme">Fermé</span>' : ""}</td><td>${s.total}</td>
           <td><input class="finput" list="nomsFormateurs" data-k="${k}" data-old="${esc(f)}" value="${esc(f)}" placeholder="Nom du formateur"><span class="fstate"></span></td></tr>`; }).join("")}</tbody></table>`;
     $("#assign").querySelectorAll(".finput").forEach(inp => inp.onchange = async () => {
       const [a, d] = inp.dataset.k.split("/"), nom = inp.value.replace(/[\[\]=|;]/g, "").trim(), etat = inp.nextElementSibling;
@@ -929,7 +930,7 @@ body:not(.is-admin) #admin{display:none}
     });
     // récap 6 mois (3 avant, mois courant, 2 après)
     const moisListe = []; for (let i = -3; i <= 2; i++) { const dd = new Date(y, m - 1 + i, 1); moisListe.push(iso(dd).slice(0, 7)); }
-    const tous = {}; Object.entries(form).forEach(([k, n]) => { const mo = k.split("/")[1].slice(0, 7); tous[n] = tous[n] || {}; tous[n][mo] = (tous[n][mo] || 0) + 1; });
+    const tous = {}; Object.entries(form).filter(([k]) => !fermee(k)).forEach(([k, n]) => { const mo = k.split("/")[1].slice(0, 7); tous[n] = tous[n] || {}; tous[n][mo] = (tous[n][mo] || 0) + 1; });
     const ns = Object.keys(tous).sort((a,b) => a.localeCompare(b, "fr"));
     $("#recap6").innerHTML = ns.length ? `<table><thead><tr><th>Formateur</th>${moisListe.map(mo => `<th>${fromIso(mo + "-01").toLocaleDateString("fr-FR",{month:"short",year:"2-digit"})}</th>`).join("")}</tr></thead><tbody>${
       ns.map(n => `<tr><td><b>${esc(n)}</b></td>${moisListe.map(mo => `<td>${tous[n][mo] || ""}</td>`).join("")}</tr>`).join("")}</tbody></table>`
